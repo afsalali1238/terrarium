@@ -120,6 +120,14 @@ export class SimEngine {
   _spawnInitialAgents() {
     const p = this.planet
     const modern = p.era === 'modern'
+    const isCity = p.sliders.originSize === 'city'
+    
+    let pop = 5;
+    if (modern && isCity) pop = 500;
+    else if (modern && !isCity) pop = 50;
+    else if (!modern && isCity) pop = 100;
+    else pop = 5;
+
     let x, y;
     do {
       x = rng.float(-800, 800);
@@ -128,16 +136,18 @@ export class SimEngine {
     const first = new Settlement(x, y, 0)
     // Modern-era civilizations begin already industrial: higher tech and population.
     first.techLevel = modern ? 4 : 0
-    first.population = modern ? 250 : 5
+    first.population = pop
     p.settlements.push(first)
     p.techLevel = first.techLevel
     this.eventBus.emit('sim:settlement_formed', { settlement: first })
 
-    for (let i = 0; i < 5; i++) {
+    // Spawn up to 50 agents visually to avoid lagging the initial frame
+    const visualAgents = Math.min(pop, 50)
+    for (let i = 0; i < visualAgents; i++) {
       const a = new Agent(first.x + rng.float(-20, 20), first.y + rng.float(-20, 20), first)
       p.agents.push(a)
     }
-    p.population = modern ? 250 : 5
+    p.population = pop
   }
 
   _updatePopulation() {
