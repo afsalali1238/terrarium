@@ -92,7 +92,9 @@ export class MythEngine {
     // Age myths every 50 ticks
     if (tick % 50 === 0) {
       this.ageTick()
-      this._updatePlayerName()  // name drifts toward "Absent" if you go quiet
+      // Name drifts toward "Absent" if you go quiet — but freeze it once the
+      // finale begins so it reflects the whole history that produced the ending.
+      if (this.planet.epoch !== 'reckoning') this._updatePlayerName()
     }
     this.religionSystem.tick()
 
@@ -163,8 +165,27 @@ export class MythEngine {
     else if (event.stage === 'reaction') pool = R[event.archetype] || R.capricious
     else if (event.stage === 'ending') pool = R[event.resolution] || R.transcend
     if (!pool) return
+
+    // At the finale, the name they remember reflects their whole history with
+    // you (cumulative), not just recent quiet — so it matches the ending tone.
+    if (event.archetype) {
+      const name = this._archetypeName(event.archetype)
+      this.playerName = name
+      this.planet.playerName = name
+    }
+
     const text = this._fill(rng.pick(pool), event)
     this._createMyth('reckoning', text, event.stage === 'ending' ? 'religion' : 'legend')
+  }
+
+  _archetypeName(archetype) {
+    return {
+      cruel: 'The Sky Breaker',
+      generous: 'The Generous Hand',
+      redeemer: 'The Redeemer',
+      capricious: 'The Capricious One',
+      absent: 'The Absent One'
+    }[archetype] || 'The Absent One'
   }
 
   _onSchism(original, splinter) {

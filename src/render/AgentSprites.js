@@ -55,8 +55,7 @@ export class AgentSprites {
   }
 
   updateSize() {
-    this.container.x = window.innerWidth / 2;
-    this.container.y = window.innerHeight / 2;
+    // container is within the properly scaled scene
   }
 
   update(state, zoomLevel, targetAgent) {
@@ -67,17 +66,18 @@ export class AgentSprites {
       return;
     }
 
+    let tex = this.textures.small;
     if (zoomLevel === 0) {
-      // Zoom 0: No individual agents. 
-      this.particleContainer.visible = false;
-      return;
+      this.particleContainer.visible = true;
+      this.particleContainer.alpha = 0.3;
+      tex = this.textures.small;
     } else {
       this.particleContainer.visible = true;
+      this.particleContainer.alpha = 1.0;
+      tex = zoomLevel >= 2 ? this.textures.large : this.textures.small;
     }
 
     const agents = state.planet.agents;
-    const isLarge = zoomLevel >= 2;
-    const tex = isLarge ? this.textures.large : this.textures.small;
 
     // Adjust sprites pool size
     while (this.agentSprites.length < agents.length) {

@@ -120,7 +120,12 @@ export class SimEngine {
   _spawnInitialAgents() {
     const p = this.planet
     const modern = p.era === 'modern'
-    const first = new Settlement(50 + rng.float(-10, 10), 50 + rng.float(-10, 10), 0)
+    let x, y;
+    do {
+      x = rng.float(-800, 800);
+      y = rng.float(-800, 800);
+    } while (x*x + y*y > 640000); // R^2 = 800^2
+    const first = new Settlement(x, y, 0)
     // Modern-era civilizations begin already industrial: higher tech and population.
     first.techLevel = modern ? 4 : 0
     first.population = modern ? 250 : 5
@@ -129,7 +134,7 @@ export class SimEngine {
     this.eventBus.emit('sim:settlement_formed', { settlement: first })
 
     for (let i = 0; i < 5; i++) {
-      const a = new Agent(first.x + rng.float(-3, 3), first.y + rng.float(-3, 3), first)
+      const a = new Agent(first.x + rng.float(-20, 20), first.y + rng.float(-20, 20), first)
       p.agents.push(a)
     }
     p.population = modern ? 250 : 5
@@ -233,7 +238,12 @@ export class SimEngine {
 
   _formSettlement() {
     const p = this.planet
-    const s = new Settlement(rng.float(10, 90), rng.float(10, 90), p.tick)
+    let x, y;
+    do {
+      x = rng.float(-800, 800);
+      y = rng.float(-800, 800);
+    } while (x*x + y*y > 640000);
+    const s = new Settlement(x, y, p.tick)
     s.population = 10
     p.settlements.push(s)
     this.eventBus.emit('sim:settlement_formed', {
@@ -266,7 +276,7 @@ export class SimEngine {
     while (p.agents.length < Math.min(p.population, 500) && p.agents.length < 500) {
       const s = rng.pick(p.settlements)
       if (!s) break
-      const a = new Agent(s.x + rng.float(-5, 5), s.y + rng.float(-5, 5), s)
+      const a = new Agent(s.x + rng.float(-20, 20), s.y + rng.float(-20, 20), s)
       p.agents.push(a)
     }
 

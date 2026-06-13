@@ -64,13 +64,10 @@ export class PlanetView {
   }
 
   updateSize() {
-    const minDim = Math.min(window.innerWidth, window.innerHeight);
-    this.radius = minDim * 0.4;
-    this.container.x = window.innerWidth / 2;
-    this.container.y = window.innerHeight / 2;
+    this.radius = 1000;
 
-    this.waterSprite.width = this.radius * 2;
-    this.waterSprite.height = this.radius * 2;
+    this.waterSprite.width = 2000;
+    this.waterSprite.height = 2000;
     this.waterSprite.anchor.set(0.5);
     
     this.landSprite.width = this.radius * 2;
@@ -202,8 +199,8 @@ export class PlanetView {
         else if (s.dominantMythType === 'abundance') glowColor = 0x44ff88;
         else if (s.dominantMythType === 'absence') glowColor = 0x888888;
 
-        this.glowGraphics.beginFill(glowColor, 0.2);
-        this.glowGraphics.drawCircle(s.x, s.y, 20); // simplified
+        this.glowGraphics.beginFill(glowColor, 0.4);
+        this.glowGraphics.drawCircle(s.x, s.y, 60); // 60 units in world space
         this.glowGraphics.endFill();
       });
     }
@@ -227,7 +224,7 @@ export class PlanetView {
         const fade = 1 - (age / 50);
         this.scarGraphics.beginFill(0x111111, fade * 0.9);
       }
-      this.scarGraphics.drawCircle(scar.x, scar.y, 15);
+      this.scarGraphics.drawCircle(scar.x, scar.y, 45);
       this.scarGraphics.endFill();
     }
 

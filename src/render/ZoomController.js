@@ -10,12 +10,8 @@ export class ZoomController {
     this.targetAgent = null;
     this.targetSettlement = null;
 
-    this.ZOOM_SCALES = {
-      0: 1.0,    // full planet visible
-      1: 4.0,    // region
-      2: 16.0,   // village
-      3: 32.0    // person
-    };
+    this.updateScales();
+    window.addEventListener('resize', () => this.updateScales());
 
     // Attach to canvas scroll and click
     const canvas = renderer.app.view;
@@ -42,6 +38,20 @@ export class ZoomController {
         this.updatePersonCard();
       }
     });
+  }
+
+  updateScales() {
+    const minDim = Math.min(window.innerWidth, window.innerHeight);
+    const baseScale = (minDim * 0.4) / 1000;
+    this.ZOOM_SCALES = {
+      0: baseScale * 1.0,
+      1: baseScale * 4.0,
+      2: baseScale * 16.0,
+      3: baseScale * 32.0
+    };
+    if (this.renderer.scene) {
+      this.zoomTo(this.currentLevel, this.targetX, this.targetY, true);
+    }
   }
 
   onScroll(e) {
@@ -104,15 +114,12 @@ export class ZoomController {
   }
 
   screenToWorld(screenX, screenY) {
-    // Stage coordinates are centered in screen, scaled.
-    // Screen coords -> Stage local -> scene local -> container local
-    // (screenX - stage.x) / stage.scale = worldX
     const scene = this.renderer.scene;
-    const cx = window.innerWidth / 2;
-    const cy = window.innerHeight / 2;
+    // scene.x + worldX * scale = screenX
+    // worldX = (screenX - scene.x) / scale
     
-    const worldX = (screenX - cx - scene.x) / scene.scale.x;
-    const worldY = (screenY - cy - scene.y) / scene.scale.y;
+    const worldX = (screenX - scene.x) / scene.scale.x;
+    const worldY = (screenY - scene.y) / scene.scale.y;
 
     return { x: worldX, y: worldY };
   }
@@ -145,7 +152,7 @@ export class ZoomController {
     return nearest;
   }
 
-  zoomTo(level, x, y) {
+  zoomTo(level, x, y, instant = false) {
     this.currentLevel = level;
     this.targetX = x;
     this.targetY = y;
@@ -153,14 +160,22 @@ export class ZoomController {
     // Scale and pivot
     const targetScale = this.ZOOM_SCALES[level];
     
-    // Animate using a simple interval (since we don't have Tween.js)
     const scene = this.renderer.scene;
     const startScale = scene.scale.x;
     const startX = scene.x;
     const startY = scene.y;
     
-    const targetSceneX = -x * targetScale;
-    const targetSceneY = -y * targetScale;
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+    const targetSceneX = cx - x * targetScale;
+    const targetSceneY = cy - y * targetScale;
+
+    if (instant) {
+      scene.scale.set(targetScale);
+      scene.x = targetSceneX;
+      scene.y = targetSceneY;
+      return;
+    }
 
     const duration = 300;
     const start = performance.now();
