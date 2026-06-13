@@ -146,6 +146,8 @@ export class InterventionBar {
           tick: currentTick,
           x: wx,
           y: wy,
+          screenX: e.clientX,
+          screenY: e.clientY,
           nearestSettlement: nearestName
         });
 

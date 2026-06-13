@@ -55,6 +55,7 @@ export class ZoomController {
   }
 
   onScroll(e) {
+    if (this.renderer.viewMode === 'terrarium') return;  // globe controls only apply to the globe
     if (e.deltaY < 0) {
       // scroll up -> zoom in (center on cursor)
       const rect = this.renderer.app.view.getBoundingClientRect();
@@ -69,6 +70,7 @@ export class ZoomController {
   }
 
   onClick(e) {
+    if (this.renderer.viewMode === 'terrarium') return;  // terrarium handles its own clicks
     const rect = this.renderer.app.view.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const clickY = e.clientY - rect.top;
