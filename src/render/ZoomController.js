@@ -75,9 +75,16 @@ export class ZoomController {
     
     const worldPoint = this.screenToWorld(clickX, clickY);
 
+    // Radii are in world units. The world spans ±1000, so these are generous
+    // enough that clicking near a settlement/person reliably selects it.
+    const SETTLEMENT_PICK_RADIUS = 280;
+    const AGENT_PICK_RADIUS = 120;
+
     if (this.currentLevel === 0) {
-      // Click at level 0: Find nearest settlement
-      const settlement = this.findNearestSettlement(worldPoint.x, worldPoint.y, 30);
+      // Click at level 0: zoom to the nearest settlement (always land somewhere
+      // meaningful so the planet never flies off into empty space).
+      const settlement = this.findNearestSettlement(worldPoint.x, worldPoint.y, SETTLEMENT_PICK_RADIUS)
+        || this.findNearestSettlement(worldPoint.x, worldPoint.y, Infinity);
       if (settlement) {
         this.targetSettlement = settlement;
         this.zoomTo(2, settlement.x, settlement.y);
@@ -86,7 +93,7 @@ export class ZoomController {
       }
     } else if (this.currentLevel >= 1 && this.currentLevel < 3) {
       // Click at level 1/2: Find nearest agent
-      const agent = this.findNearestAgent(worldPoint.x, worldPoint.y, 10);
+      const agent = this.findNearestAgent(worldPoint.x, worldPoint.y, AGENT_PICK_RADIUS);
       if (agent) {
         this.targetAgent = agent;
         this.zoomTo(3, agent.x, agent.y);
