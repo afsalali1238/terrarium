@@ -7,5 +7,6 @@ export const GameState = {
   simSpeed: 1,
   currentZoom: 0,
   focusedAgent: null,
-  focusedSettlement: null
+  focusedSettlement: null,
+  influence: 100
 }

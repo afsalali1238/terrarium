@@ -76,9 +76,12 @@ export class TerrariumView {
     this.meteors = []               // { x, y, vy }
     this.scars = []                 // { x, age }
     this.sparkles = []              // bless particles { x, y, vy, life }
+    this.crops = []
+    this.cracks = []
     this.shake = 0
     this.blessTimer = 0
     this.droughtTimer = 0
+    this.plagueTimer = 0
     this.flash = 0
 
     // --- discrete sim state (refreshed on sim:tick) ---
@@ -107,10 +110,22 @@ export class TerrariumView {
 
       this.eventBus.on('sim:tick', (state) => this.update(state))
       this.eventBus.on('intervention:meteor', (d) => this.reactMeteor(d))
-      this.eventBus.on('intervention:bless', () => { this.blessTimer = 120 })
-      this.eventBus.on('intervention:drought', () => { this.droughtTimer = 240 })
+      this.eventBus.on('intervention:bless', () => { 
+        this.blessTimer = 120;
+        this.crops = [];
+        for (let i=0; i<30; i++) this.crops.push({ x: this.padX + Math.random() * (this.w - this.padX * 2), y: this.groundY - 1 - Math.random() * 3 });
+      })
+      this.eventBus.on('intervention:drought', () => { 
+        this.droughtTimer = 240;
+        this.cracks = [];
+        for (let i=0; i<15; i++) this.cracks.push({ x: this.padX + Math.random() * (this.w - this.padX * 2) });
+      })
       this.eventBus.on('sim:civ_event', ({ event }) => {
-        if (event && event.type && /plague|collapse/.test(event.type)) this._cull(0.3)
+        if (event && event.type && /plague|collapse/.test(event.type)) {
+          this._cull(0.3)
+          this.plagueTimer = 180
+          this.people.forEach(p => { if (Math.random() < 0.4) p.sick = true })
+        }
       })
       this.eventBus.on('planet:death', () => { this.dead = true })
 
@@ -165,7 +180,8 @@ export class TerrariumView {
     const agents = planet.agents || []
     const n = Math.max(1, this.settlements.length)
     // Visible figures scale with population but cap so they stay legible.
-    const desired = clamp(Math.round(Math.sqrt(this.population) * 1.6), agents.length ? 1 : 0, 46)
+    const maxDesktop = this.w > 720 ? 60 : 24;
+    const desired = clamp(Math.round(Math.sqrt(this.population) * 1.6), agents.length ? 1 : 0, maxDesktop)
 
     // remove extras
     while (this.people.length > desired) this.people.pop()
@@ -180,7 +196,7 @@ export class TerrariumView {
         phase: Math.random() * Math.PI * 2,
         speed: 0.15 + Math.random() * 0.25,
         dir: Math.random() < 0.5 ? -1 : 1,
-        targetX: x, dead: false, fall: 0
+        targetX: x, dead: false, fall: 0, sick: false
       })
     }
 
@@ -190,7 +206,7 @@ export class TerrariumView {
       p.zone = si
       const z = this._zoneFor(si, n)
       p.zoneCx = z.cx
-      p.zoneHalf = z.half
+      p.zoneHalf = z.half * (0.8 + Math.random() * 0.4)
       const a = agents.length ? agents[idx % agents.length] : null
       p.agent = a
       p.role = (a && a.role) || 'settler'
@@ -337,6 +353,7 @@ export class TerrariumView {
 
     if (this.blessTimer > 0) this.blessTimer--
     if (this.droughtTimer > 0) this.droughtTimer--
+    if (this.plagueTimer > 0) this.plagueTimer--
     if (this.flash > 0) this.flash = Math.max(0, this.flash - dt * 2)
 
     // death fade
@@ -454,14 +471,16 @@ export class TerrariumView {
       }
       const swing = Math.sin(p.phase) * 2
       // legs
-      g.lineStyle(2, col, 1)
+      const isSick = this.plagueTimer > 0 && p.sick;
+      const drawCol = isSick ? 0x88cc88 : col;
+      g.lineStyle(2, drawCol, 1)
       g.moveTo(x, baseY - FIG * 0.45); g.lineTo(x - 2 + swing, baseY)
       g.moveTo(x, baseY - FIG * 0.45); g.lineTo(x + 2 - swing, baseY)
       // body
       g.moveTo(x, baseY - FIG * 0.45); g.lineTo(x, baseY - FIG * 0.8)
       g.lineStyle(0)
       // head
-      g.beginFill(col); g.drawCircle(x, baseY - FIG * 0.9, 3); g.endFill()
+      g.beginFill(drawCol); g.drawCircle(x, baseY - FIG * 0.9, 3); g.endFill()
       // celebrate on bless: little hop already via offset
       if (this.blessTimer > 0) { g.beginFill(0xffe07a, 0.8); g.drawCircle(x, baseY - FIG - 4, 1.4); g.endFill() }
     }
@@ -486,9 +505,15 @@ export class TerrariumView {
       }
     }
 
-    // bless sparkles
-    if (this.blessTimer > 0 && Math.random() < 0.6) {
-      this.sparkles.push({ x: this.padX + Math.random() * (this.w - this.padX * 2), y: this.groundY - 4, vy: -(20 + Math.random() * 30), life: 1 })
+    // bless sparkles and crops
+    if (this.blessTimer > 0) {
+      g.beginFill(0xffe07a, 0.15); g.drawRect(0, 0, this.w, this.groundY); g.endFill();
+      this.crops.forEach(c => {
+         g.beginFill(0x55ff88, 0.8); g.drawRect(c.x, c.y, 2, 3); g.endFill();
+      })
+      if (Math.random() < 0.6) {
+        this.sparkles.push({ x: this.padX + Math.random() * (this.w - this.padX * 2), y: this.groundY - 4, vy: -(20 + Math.random() * 30), life: 1 })
+      }
     }
     for (let i = this.sparkles.length - 1; i >= 0; i--) {
       const s = this.sparkles[i]
@@ -497,9 +522,22 @@ export class TerrariumView {
       g.beginFill(0xffe890, s.life); g.drawCircle(s.x, s.y, 1.6); g.endFill()
     }
 
-    // drought haze
+    // drought haze and cracks
     if (this.droughtTimer > 0) {
-      g.beginFill(0xb98a3a, 0.06); g.drawRect(0, 0, this.w, this.groundY); g.endFill()
+      g.beginFill(0xb98a3a, 0.15); g.drawRect(0, 0, this.w, this.groundY); g.endFill()
+      g.lineStyle(1, 0x2a1f17, 0.6)
+      this.cracks.forEach(c => {
+         g.moveTo(c.x, this.groundY)
+         g.lineTo(c.x + 4, this.groundY + 4)
+         g.lineTo(c.x - 2, this.groundY + 8)
+         g.lineTo(c.x + 5, this.groundY + 12)
+      })
+      g.lineStyle(0)
+    }
+
+    // plague haze
+    if (this.plagueTimer > 0) {
+      g.beginFill(0x88cc88, 0.1); g.drawRect(0, 0, this.w, this.groundY); g.endFill()
     }
 
     // age scars

@@ -152,6 +152,7 @@ export class InterventionBar {
         });
 
         this.cooldowns.meteor = 30; // 30 ticks
+        this.gameState.influence -= 60;
         this.logIntervention('meteor', wx, wy);
         this.cancelAim();
       }
@@ -166,7 +167,8 @@ export class InterventionBar {
   }
 
   handleActionClick(action) {
-    if (this.cooldowns[action] > 0) return;
+    const COSTS = { meteor: 60, drought: 35, bless: 45 };
+    if (this.cooldowns[action] > 0 || this.gameState.influence < COSTS[action]) return;
 
     if (action === 'meteor') {
       this.aimMode = 'meteor';
@@ -174,11 +176,13 @@ export class InterventionBar {
       this.btnMeteor.classList.add('active');
     } else if (action === 'drought') {
       const t = this.gameState?.planet?.tick || 0;
+      this.gameState.influence -= COSTS.drought;
       this.eventBus.emit('intervention:drought', { tick: t });
       this.cooldowns.drought = 20;
       this.logIntervention('drought');
     } else if (action === 'bless') {
       const t = this.gameState?.planet?.tick || 0;
+      this.gameState.influence -= COSTS.bless;
       this.eventBus.emit('intervention:bless', { tick: t });
       this.cooldowns.bless = 25;
       this.logIntervention('bless');
@@ -217,6 +221,11 @@ export class InterventionBar {
     const pop = state?.planet?.population || 0;
     const isLifeSeeded = pop > 0 || (state.tick > 10);
 
+    // Regen influence
+    if (isLifeSeeded && this.gameState.influence < 100) {
+      this.gameState.influence = Math.min(100, this.gameState.influence + 1);
+    }
+
     // Update cooldowns
     for (const key in this.cooldowns) {
       if (this.cooldowns[key] > 0) {
@@ -224,12 +233,12 @@ export class InterventionBar {
       }
     }
 
-    this.updateButtonState(this.btnMeteor, 'meteor', 'Send fire', isLifeSeeded);
-    this.updateButtonState(this.btnDrought, 'drought', 'Dry the rain', isLifeSeeded);
-    this.updateButtonState(this.btnBless, 'bless', 'Feed them well', isLifeSeeded);
+    this.updateButtonState(this.btnMeteor, 'meteor', 'Send fire', 60, isLifeSeeded);
+    this.updateButtonState(this.btnDrought, 'drought', 'Dry the rain', 35, isLifeSeeded);
+    this.updateButtonState(this.btnBless, 'bless', 'Feed them well', 45, isLifeSeeded);
   }
 
-  updateButtonState(btn, key, defaultSub, isLifeSeeded) {
+  updateButtonState(btn, key, defaultSub, cost, isLifeSeeded) {
     const sub = btn.querySelector('.ibar-sub');
     if (!isLifeSeeded) {
       btn.disabled = true;
@@ -240,9 +249,12 @@ export class InterventionBar {
     if (this.cooldowns[key] > 0) {
       btn.disabled = true;
       sub.innerText = `Ready in: ${this.cooldowns[key]}`;
+    } else if (this.gameState.influence < cost) {
+      btn.disabled = true;
+      sub.innerText = `${defaultSub} · ${cost}`;
     } else {
       btn.disabled = false;
-      sub.innerText = defaultSub;
+      sub.innerText = `${defaultSub} · ${cost}`;
     }
   }
 }

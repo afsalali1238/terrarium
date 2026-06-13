@@ -59,9 +59,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (h < 0.2) color = 'var(--text-dim)';
     else if (h < 0.5) color = 'var(--accent-red)';
     else if (h < 0.8) color = 'var(--accent-orange)';
+    const influence = Math.floor(GameState.influence || 0);
     statsEl.innerHTML =
       '<span>Year: <span class="stat-val">' + state.tick + '</span></span> ' +
       '<span>Pop: <span class="stat-val">' + (planet.population || 0).toLocaleString() + '</span></span> ' +
+      '<span>Influence: <span class="stat-val">' + influence + '</span></span> ' +
       '<span style="color:' + color + ';font-weight:bold;font-family:var(--font-mono);font-size:12px">&nbsp;' + bar + '</span>';
   }
 
@@ -103,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     GameState.planet = planet;
     GameState.tick = 0;
     GameState.simSpeed = 1;
+    GameState.influence = 100;
     GameState.interventionLog = [];
     GameState.myths = [];
 
