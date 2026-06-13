@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(grep -n '\\\\\\\\\\\\\\\\`')",
+      "Bash(node -e ' *)",
+      "Bash(grep -c '\\\\\\\\\\\\\\\\`' \"C:/Users/HP/Desktop/antigravity/terrarium-v2/src/ui/Ticker.js\")",
+      "Bash(npm install *)",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(mkdir -p \"C:/Users/HP/Desktop/antigravity/terrarium-v2/.claude\")",
+      "mcp__Claude_Preview__preview_start",
+      "PowerShell(Stop-Process -Id 17364 -Force -ErrorAction SilentlyContinue)",
+      "PowerShell(\"done\")"
+    ]
+  }
+}

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terrarium Planet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+
+  <!-- SCREEN: Fine-tuning interstitial (shown before setup) -->
+  <div id="screen-finetuning" class="screen">
+    <!-- FinetuningScreen.js renders here -->
+  </div>
+
+  <!-- SCREEN: Setup -->
+  <div id="screen-setup" class="screen">
+    <!-- SetupScreen.js renders here -->
+  </div>
+
+  <!-- SCREEN: Game -->
+  <div id="screen-game" class="screen active">
+
+    <!-- Canvas: planet rendering (PixiJS) -->
+    <canvas id="planet-canvas"></canvas>
+
+    <!-- Overlay: Planet stats top-left -->
+    <div id="planet-stats"></div>
+
+    <!-- Overlay: Speed control bottom-left -->
+    <div id="speed-control"></div>
+
+    <!-- Overlay: Ticker right side -->
+    <div id="ticker-overlay">
+      <div id="ticker-scroll"></div>
+    </div>
+
+    <!-- Overlay: Intervention Bar bottom-center -->
+    <div id="intervention-bar"></div>
+
+    <!-- Overlay: Zoom back button -->
+    <div id="zoom-back" class="hidden"></div>
+
+    <!-- Overlay: Person card (zoom level 3) -->
+    <div id="person-card" class="hidden"></div>
+
+    <!-- Overlay: Follow thread (followed agent's life events) -->
+    <div id="follow-thread" class="hidden"></div>
+
+    <!-- Overlay: Post-mortem (full screen) -->
+    <div id="postmortem-overlay" class="hidden"></div>
+
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
