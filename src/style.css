@@ -52,19 +52,45 @@ canvas#planet-canvas {
 /* Ticker styles */
 #ticker-overlay {
   position: absolute;
-  right: 20px;
+  right: 0px;
   top: 20px;
   bottom: 130px;
   width: 280px;
-  background: rgba(8, 8, 24, 0.88);
+  background: rgba(8, 8, 24, 0.4);
   border: 1px solid var(--border);
-  border-radius: 4px;
-  overflow: hidden;
+  border-right: none;
+  border-radius: 4px 0 0 4px;
   display: flex;
   flex-direction: column;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(2px);
   z-index: 10;
+  transition: transform 300ms ease;
+  pointer-events: none;
 }
+#ticker-overlay > * { pointer-events: auto; }
+#ticker-overlay.collapsed {
+  transform: translateX(100%);
+}
+#ticker-toggle {
+  position: absolute;
+  left: -32px;
+  top: 10px;
+  width: 32px;
+  height: 32px;
+  background: rgba(8,8,24,0.85);
+  border: 1px solid var(--border);
+  border-right: none;
+  border-radius: 4px 0 0 4px;
+  color: var(--text-bright);
+  cursor: pointer;
+  pointer-events: auto;
+  font-family: var(--font-ui);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+#ticker-toggle:hover { background: rgba(255,255,255,0.1); }
 
 #ticker-scroll {
   flex: 1;
@@ -285,3 +311,60 @@ canvas#planet-canvas {
 .ft-events { display: flex; flex-direction: column; gap: 8px; font-size: 12px; line-height: 1.4; color: var(--text); }
 .ft-unfollow { margin-top: 12px; background: none; border: 1px solid var(--border); color: var(--text-dim); font-size: 10px; padding: 4px 8px; cursor: pointer; border-radius: 2px; align-self: flex-start; }
 .ft-unfollow:hover { border-color: var(--text-bright); color: var(--text-bright); }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  #ticker-overlay {
+    top: auto;
+    bottom: 80px;
+    right: 10px;
+    left: 10px;
+    width: auto;
+    height: 120px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    transform: none !important;
+    background: linear-gradient(to top, rgba(8,8,24,0.95), rgba(8,8,24,0.6));
+    backdrop-filter: blur(4px);
+    pointer-events: auto;
+  }
+  #ticker-toggle {
+    display: none;
+  }
+  #ibar-inner {
+    flex-wrap: wrap;
+    padding: 8px;
+    gap: 8px;
+  }
+  .ibar-btn {
+    flex: 1;
+    min-width: 90px;
+    padding: 6px;
+  }
+  .ibar-title {
+    font-size: 11px;
+    margin-bottom: 2px;
+  }
+  .ibar-sub {
+    font-size: 9px;
+  }
+  #planet-stats {
+    top: 10px;
+    left: 10px;
+    font-size: 10px;
+    padding: 6px 8px;
+  }
+  #speed-control {
+    bottom: 210px;
+    left: 10px;
+    padding: 4px 6px;
+  }
+  #person-card {
+    right: 10px;
+    top: 50px;
+    transform: none;
+    width: auto;
+    left: 10px;
+    animation: fadeIn 300ms ease-out forwards;
+  }
+}

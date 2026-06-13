@@ -3,6 +3,7 @@ export class Ticker {
     this.el = el;
     this.eventBus = eventBus;
     this.scrollEl = this.el.querySelector('#ticker-scroll');
+    this.toggleBtn = this.el.querySelector('#ticker-toggle');
     this.followThreadEl = document.getElementById('follow-thread');
     this.followedAgentId = null;
     this.playerName = null;
@@ -11,6 +12,11 @@ export class Ticker {
   }
 
   _attachEvents() {
+    if (this.toggleBtn) {
+      this.toggleBtn.addEventListener('click', () => {
+        this.el.classList.toggle('collapsed');
+      });
+    }
     // Only show raw civ events that don't become myths — myth events appear via myth:created in gold
     this.eventBus.on('sim:civ_event', ({ event }) => { if (!event.feedsMyth) this.addEntry(event); });
     // sim:guaranteed_myth is handled by MythEngine → myth:created, so we skip it here to avoid duplicates
