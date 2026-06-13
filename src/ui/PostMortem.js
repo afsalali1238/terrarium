@@ -1,3 +1,5 @@
+import { GameState } from '../state/GameState.js';
+
 export class PostMortem {
   constructor(el, eventBus) {
     this.el = el;
@@ -67,7 +69,8 @@ export class PostMortem {
       </div>
       
       <div class="pm-section pm-buttons">
-        <button class="pm-btn" id="btn-seal">SEAL THIS PLANET</button>
+        <button class="pm-btn" id="btn-copy">COPY MY LEGEND</button>
+        <button class="pm-btn" id="btn-replay">REPLAY THIS SEED</button>
         <button class="pm-btn" id="btn-retry">BUILD AGAIN →</button>
       </div>
     `;
@@ -106,7 +109,15 @@ export class PostMortem {
     }
 
     // Bind buttons
-    card.querySelector('#btn-seal').addEventListener('click', () => this.handleAction('seal'));
+    card.querySelector('#btn-copy').addEventListener('click', (e) => {
+      const seed = GameState.seed || '?';
+      const text = `🌍 Terrarium Planet\nThey called me "${pName}".\n${finalPop > 0 ? `Final population: ${finalPop}` : 'Everyone died'} — Year ${tick}, ${name}.\nTheir last myth: "${lastMythStr}"\nSeed: ${seed} · play: https://terrarium-swart.vercel.app`;
+      navigator.clipboard.writeText(text).then(() => {
+        e.target.textContent = "COPIED!";
+        setTimeout(() => e.target.textContent = "COPY MY LEGEND", 2000);
+      });
+    });
+    card.querySelector('#btn-replay').addEventListener('click', () => this.handleAction('replay'));
     card.querySelector('#btn-retry').addEventListener('click', () => this.handleAction('retry'));
   }
 
@@ -114,11 +125,16 @@ export class PostMortem {
     this.runCount++;
     localStorage.setItem('terrarium_planet_runs', this.runCount.toString());
     
-    // For V1, both go to setup screen, but 'seal' might do more in future
+    let nextSeed = undefined;
+    if (action === 'replay') {
+      nextSeed = GameState.seed;
+    }
+
     this.eventBus.emit('ui:nav_setup', { 
-      autoFillHint: action === 'retry',
-      skipFinetuning: action === 'retry',
-      lastSliders: this.lastSliders 
+      autoFillHint: action === 'retry' || action === 'replay',
+      skipFinetuning: action === 'retry' || action === 'replay',
+      lastSliders: this.lastSliders,
+      seed: nextSeed
     });
     this.el.classList.remove('active');
     this.el.classList.add('hidden');

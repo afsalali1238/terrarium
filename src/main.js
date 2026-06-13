@@ -10,6 +10,7 @@ import { FinetuningScreen } from './ui/FinetuningScreen.js';
 import { SimEngine } from './simulation/SimEngine.js';
 import { MythEngine } from './myth/MythEngine.js';
 import Planet from './simulation/Planet.js';
+import { reseedRng } from './utils/Random.js';
 
 window.showScreen = function(to) {
   const current = document.querySelector('.screen.active');
@@ -72,6 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
   EventBus.on('ui:nav_setup', (data) => {
     if (currentSimEngine) { currentSimEngine.stop(); currentSimEngine = null; }
     
+    if (data && data.seed !== undefined) {
+      GameState.nextSeed = data.seed;
+    }
+
     if (data && data.skipFinetuning) {
       window.showScreen('setup');
       if (data.lastSliders) {
@@ -85,6 +90,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   EventBus.on('setup:complete', (config) => {
     if (currentSimEngine) currentSimEngine.stop();
+
+    let seed = GameState.nextSeed;
+    if (seed === undefined) {
+      seed = Math.floor(Math.random() * 999999);
+    }
+    GameState.nextSeed = undefined;
+    reseedRng(seed);
+    GameState.seed = seed;
 
     const planet = new Planet(config);
     GameState.planet = planet;
@@ -107,6 +120,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     currentSimEngine.start();
     window.showScreen('game');
+
+    // T3: First-run intro
+    if (!localStorage.getItem('terrarium_seen_intro')) {
+      const introCard = document.getElementById('intro-card');
+      if (introCard) {
+        introCard.classList.remove('hidden');
+        const lines = introCard.querySelectorAll('.intro-line');
+        const btn = document.getElementById('btn-begin-watching');
+        
+        lines.forEach((line, i) => {
+          setTimeout(() => line.classList.add('reveal'), i * 1500 + 500);
+        });
+        setTimeout(() => btn.classList.add('reveal'), lines.length * 1500 + 500);
+
+        btn.onclick = () => {
+          introCard.classList.add('screen-fade-out');
+          setTimeout(() => {
+            introCard.classList.add('hidden');
+            introCard.classList.remove('screen-fade-out');
+            localStorage.setItem('terrarium_seen_intro', 'true');
+            
+            // Pulse the intervention bar
+            const ibarInner = document.getElementById('ibar-inner');
+            if (ibarInner) {
+              ibarInner.classList.add('hint-pulse');
+              setTimeout(() => ibarInner.classList.remove('hint-pulse'), 2500);
+            }
+          }, 300);
+        };
+      }
+    }
   });
 
   window.showScreen('finetuning');

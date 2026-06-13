@@ -312,6 +312,51 @@ canvas#planet-canvas {
 .ft-unfollow { margin-top: 12px; background: none; border: 1px solid var(--border); color: var(--text-dim); font-size: 10px; padding: 4px 8px; cursor: pointer; border-radius: 2px; align-self: flex-start; }
 .ft-unfollow:hover { border-color: var(--text-bright); color: var(--text-bright); }
 
+/* Intro Card */
+#intro-card {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+.intro-line {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  color: var(--text-bright);
+  text-align: center;
+  opacity: 0;
+}
+.intro-line.reveal { animation: fadeIn 1.5s ease forwards; }
+#btn-begin-watching {
+  margin-top: 32px;
+  background: var(--surface-high);
+  border: 1px solid var(--border);
+  color: var(--text-bright);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 12px 24px;
+  cursor: pointer;
+  border-radius: 4px;
+  opacity: 0;
+}
+#btn-begin-watching.reveal { animation: fadeIn 1.5s ease forwards; }
+#btn-begin-watching:hover { background: rgba(255,255,255,0.1); border-color: var(--text-dim); }
+
+/* Hint Pulse */
+@keyframes hintPulse {
+  0% { box-shadow: 0 0 0 0 rgba(74, 255, 154, 0.4); border-color: rgba(74, 255, 154, 0.8); }
+  70% { box-shadow: 0 0 0 10px rgba(74, 255, 154, 0); border-color: #1e1e3a; }
+  100% { box-shadow: 0 0 0 0 rgba(74, 255, 154, 0); border-color: #1e1e3a; }
+}
+.hint-pulse .ibar-btn {
+  animation: hintPulse 2s ease-out;
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
   #ticker-overlay {
