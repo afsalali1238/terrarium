@@ -469,6 +469,28 @@ export class SimEngine {
     }
   }
 
+  _applyPopChange(delta) {
+    if (!delta) return
+    const p = this.planet
+    p.population = Math.max(0, Math.min(10000, p.population + delta))
+  }
+
+  // G3: a meteor is no longer just a myth — it costs lives and can erase a settlement.
+  _applyMeteor(d) {
+    const p = this.planet
+    const loss = Math.floor(p.population * (0.12 + rng.float(0, 0.13)))  // 12–25%
+    this._applyPopChange(-loss)
+    if (d && d.x !== undefined && p.settlements.length > 1) {
+      let nearest = null, md = Infinity
+      for (const s of p.settlements) {
+        const dd = Math.sqrt((s.x - d.x) ** 2 + (s.y - d.y) ** 2)
+        if (dd < md) { md = dd; nearest = s }
+      }
+      if (nearest) p.settlements = p.settlements.filter(s => s !== nearest)
+    }
+    this.eventBus.emit('devotion:change', { delta: 5, reason: 'sent fire from the sky' })
+  }
+
   _handleDegradation(cause) {
     this._degradationCount++
     const p = this.planet
