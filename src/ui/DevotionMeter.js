@@ -45,7 +45,7 @@ export class DevotionMeter {
     this.el.innerHTML =
       '<div class="dv-head"><span>Devotion</span><span class="dv-tier" id="dv-tier">Forgotten</span></div>' +
       '<div class="dv-bar"><div class="dv-fill" id="dv-fill"></div></div>' +
-      '<button id="dv-miracle" aria-label="Perform a miracle">✨ Reveal Yourself</button>'
+      '<button id="dv-miracle" aria-label="Perform a miracle" title="Cost: 80. Averts disaster and forces a Golden Age.">✨ Reveal Yourself</button>'
     document.body.appendChild(this.el)
     this.fill = this.el.querySelector('#dv-fill')
     this.tierEl = this.el.querySelector('#dv-tier')
@@ -79,15 +79,19 @@ export class DevotionMeter {
     if ((this.gameState.devotion || 0) < 80) return
     const p = this.gameState.planet
     const s = p?.settlements?.[0]
+    
+    // A2: Real sim effect
+    this.eventBus.emit('intervention:miracle', { tick: p?.tick || 0 })
+
     // A pure-narrative miracle (no cross-file edits): a dramatic, gold myth.
     this.eventBus.emit('sim:civ_event', { event: {
       type: 'miracle',
-      text: `The sky opened over ${s?.name || 'the world'} and, for one impossible moment, the watcher was visible to all. No one who saw it ever doubted again.`,
+      text: `The sky opened over ${s?.name || 'the world'} and, for one impossible moment, the watcher was visible to all. The climate settled, the sick rose, and no one who saw it ever doubted again.`,
       feedsMyth: true,
       tick: p?.tick || 0
     } })
     if (p) p.divineAnswer = 'revealed'
-    this.gameState.devotion = 40   // a miracle spends some faith
+    this.gameState.devotion = 0   // A2: a miracle spends all 80+ faith
     this._render()
   }
 

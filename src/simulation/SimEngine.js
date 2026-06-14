@@ -32,10 +32,10 @@ export class SimEngine {
       },
       'intervention:bless': () => {
         this._blessTicks = 15
-        // Immediate boon you can SEE: the population jumps.
         this._applyPopChange(Math.floor(this.planet.population * 0.08) + 5)
         this.eventBus.emit('devotion:change', { delta: 8, reason: 'blessed the harvest' })
       },
+      'intervention:miracle': () => this._handleMiracle(),
       'intervention:climate': ({ key, value }) => {
         if (this.planet.sliders && key in this.planet.sliders) this._climateTargets[key] = value
       },
@@ -172,6 +172,11 @@ export class SimEngine {
       }
     }
 
+    // A1: Climate Drift every 50 ticks
+    if (p.tick % 50 === 0) {
+      this._driftClimate()
+    }
+
     // 10. Render tick
     this.eventBus.emit('sim:tick', {
       tick: p.tick,
@@ -287,7 +292,12 @@ export class SimEngine {
 
     const r = rng.next()
     const s = p.settlements[0]
-    if (r < 0.18 && p.population > 200) {
+    const devotion = GameState.devotion || 0
+
+    const goldenChance = devotion >= 80 ? 0.30 : 0.18
+    const darkChance = devotion < 15 ? 0.50 : 0.16
+
+    if (r < goldenChance && p.population > 200) {
       p.ageState = 'golden'
       p.ageStateUntil = p.tick + rng.int(30, 70)
       this.eventBus.emit('sim:civ_event', { event: {
@@ -296,12 +306,16 @@ export class SimEngine {
         feedsMyth: false,
         tick: p.tick
       } })
-    } else if (r < 0.34 && p.population > 200) {
+    } else if (r < (goldenChance + darkChance) && p.population > 200) {
       p.ageState = 'dark'
       p.ageStateUntil = p.tick + rng.int(30, 70)
+      let text = `A dark age settled over ${s?.name ?? 'the world'}. Roads emptied, knowledge was lost, and each year was a little poorer than the last.`
+      if (devotion < 15) {
+        text = `Abandoned by the sky, ${s?.name ?? 'the world'} fell into a bitter dark age. The people lost faith in everything.`
+      }
       this.eventBus.emit('sim:civ_event', { event: {
         type: 'dark_age',
-        text: `A dark age settled over ${s?.name ?? 'the world'}. Roads emptied, knowledge was lost, and each year was a little poorer than the last.`,
+        text,
         feedsMyth: false,
         tick: p.tick
       } })
@@ -468,6 +482,35 @@ export class SimEngine {
       if (Math.abs(d) < 0.5) { s[k] = tgt; delete this._climateTargets[k]; continue }
       s[k] += Math.max(-2, Math.min(2, d))   // up to 2 points/tick — climate has inertia
     }
+  }
+
+  _driftClimate() {
+    const s = this.planet.sliders
+    if (!s) return
+    const keys = ['atmosphere', 'water', 'heat', 'gravity', 'starDistance', 'soil']
+    const k = rng.pick(keys)
+    // Drift away from 50
+    if (s[k] >= 50) {
+      s[k] = Math.min(100, s[k] + rng.int(1, 3))
+    } else {
+      s[k] = Math.max(0, s[k] - rng.int(1, 3))
+    }
+  }
+
+  _handleMiracle() {
+    const p = this.planet
+    if (!p.sliders) return
+    
+    // 1. Reset sliders to safe 50s (Eden)
+    const keys = ['atmosphere', 'water', 'heat', 'gravity', 'starDistance', 'soil']
+    keys.forEach(k => {
+      p.sliders[k] = 50
+      if (this._climateTargets[k] !== undefined) delete this._climateTargets[k]
+    })
+    
+    // 2. Force a long Golden Age
+    p.ageState = 'golden'
+    p.ageStateUntil = p.tick + 100
   }
 
   _applyPopChange(delta) {
