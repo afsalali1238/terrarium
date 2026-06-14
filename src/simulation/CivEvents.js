@@ -217,6 +217,12 @@ export function generateDilemma(planet) {
   if (planet.population < 100 || planet.epoch === 'reckoning') return null
   const settlements = planet.settlements
   if (!settlements.length) return null
+
+  // Dilemmas should feel like rare, weighty crossroads — not a constant quiz.
+  // Enforce a minimum spacing and a probability so they don't stall the run.
+  if (planet._lastDilemmaTick && planet.tick - planet._lastDilemmaTick < 200) return null
+  if (rng.next() > 0.4) return null
+  planet._lastDilemmaTick = planet.tick
   const s1 = settlements[0]
   const s2 = settlements.length > 1 ? settlements[1] : s1
 
