@@ -23,7 +23,8 @@ export class MythEngine {
       'intervention:bless': (data) => this.onIntervention('bless', data),
       'sim:tick': ({ tick }) => this._onTick(tick),
       'planet:death': (data) => this._onDeath(data),
-      'myth:schism': ({ original, splinter }) => this._onSchism(original, splinter)
+      'myth:schism': ({ original, splinter }) => this._onSchism(original, splinter),
+      'choice:made': (data) => this._onChoice(data)
     }
     for (const [k, v] of Object.entries(this._listeners)) this.eventBus.on(k, v)
 
@@ -199,6 +200,53 @@ export class MythEngine {
     if (!original || !splinter) return
     const text = `${splinter.name} broke away from ${original.name}, declaring the old faith had misread ${this.playerName}.`
     this._createMyth('schism', text, 'legend')
+
+    // G2: the first schism per run asks the player to take a side.
+    if (!this.planet._schismChoiceFired) {
+      this.planet._schismChoiceFired = true
+      this._lastSchism = { original, splinter }
+      this.eventBus.emit('ui:choice', {
+        id: 'schism',
+        title: 'A faith is splitting in two.',
+        context: `${original.name} has fractured. A splinter — ${splinter.name} — preaches a different truth about you. Both look upward for a sign.`,
+        options: [
+          { label: `Favor the old faith (${original.name})`, key: 'favor_old' },
+          { label: `Favor the splinter (${splinter.name})`, key: 'favor_new' },
+          { label: 'Send no sign; let them contend', key: 'let_fight' }
+        ]
+      })
+    }
+  }
+
+  // G2: the player has answered the civilization. Branch the myths, bias the
+  // Reckoning, and move Devotion (consumed by the Devotion meter, G5).
+  _onChoice({ id, key }) {
+    if (id === 'communication') {
+      this.planet.divineAnswer = key
+      const lines = {
+        silent: ['The academy received no reply. Some called the silence proof the watcher had gone; others, the hardest test of all.', -3],
+        sign:   ['Then the sky shifted — once, deliberately. {settlement} fell silent, then erupted in song. {PLAYER_NAME} had answered without a word.', 14],
+        affirm: ['A certainty without sound settled over {settlement}: you are real. They wept, and built a temple to the answer that came from above.', 20],
+        deny:   ['The answer came cold and absolute: you are not. {settlement} carried that wound for a thousand years. Some say it never healed.', -12]
+      }
+      const [text, dev] = lines[key] || lines.silent
+      this._createMyth('reckoning', this._fill(text), 'legend')
+      this.eventBus.emit('devotion:change', { delta: dev, reason: 'answered the question' })
+      return
+    }
+
+    if (id === 'schism') {
+      const s = this._lastSchism || {}
+      const lines = {
+        favor_old:  [`A sign settled over ${s.original?.name || 'the old faith'}; the splinter withered, and the elders said {PLAYER_NAME} keeps the old ways.`, 5],
+        favor_new:  [`A sign blessed ${s.splinter?.name || 'the splinter'}; the old faith called it heresy made flesh, but the people had seen the omen.`, 5],
+        let_fight:  ['The watcher gave no sign, and the two faiths bled each other for generations over a silence they could not read.', -4]
+      }
+      const [text, dev] = lines[key] || lines.let_fight
+      this._createMyth('schism', this._fill(text), 'legend')
+      this.eventBus.emit('devotion:change', { delta: dev, reason: 'judged a schism' })
+      return
+    }
   }
 
   getPlayerName() { return this.playerName }

@@ -8,6 +8,7 @@ import { PostMortem } from './ui/PostMortem.js';
 import { SetupScreen } from './ui/SetupScreen.js';
 import { FinetuningScreen } from './ui/FinetuningScreen.js';
 import { ClimatePanel } from './ui/ClimatePanel.js';
+import { ChoiceModal } from './ui/ChoiceModal.js';
 import { SimEngine } from './simulation/SimEngine.js';
 import { MythEngine } from './myth/MythEngine.js';
 import Planet from './simulation/Planet.js';
@@ -51,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const finetuningScreen = new FinetuningScreen(document.getElementById('screen-finetuning'), EventBus);
   const audioEngine = new AudioEngine(EventBus);
   new ClimatePanel(EventBus, GameState);
+  new ChoiceModal(EventBus, GameState);
 
   function updateStats(state) {
     const planet = GameState.planet;

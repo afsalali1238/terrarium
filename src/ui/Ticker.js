@@ -34,6 +34,7 @@ export class Ticker {
     this.eventBus.on('intervention:drought', (data) => this.addEntry({ type: 'intervention', text: 'You withheld the rain.', tick: data.tick }));
     this.eventBus.on('intervention:bless', (data) => this.addEntry({ type: 'intervention', text: 'You blessed the harvest.', tick: data.tick }));
     this.eventBus.on('planet:death', () => this.freeze());
+    this.eventBus.on('setup:complete', () => this.clear());  // unfreeze + wipe log for a new run
     this.eventBus.on('player:name_changed', ({ name }) => this.updatePlayerName(name));
     this.eventBus.on('zoom:agent_focused', ({ agent }) => this.showFollowOption(agent));
     this.eventBus.on('agent:life_event', (data) => this.handleAgentLifeEvent(data));

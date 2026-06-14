@@ -128,6 +128,18 @@ export class SimEngine {
         event.tick = p.tick
         if (event.special === 'communication') {
           this.eventBus.emit('communication:outbound', event)
+          // G2: the civilization is reaching out — let the player answer.
+          this.eventBus.emit('ui:choice', {
+            id: 'communication',
+            title: 'They are asking if they are real.',
+            context: 'An academy has sent a message beyond the sky, addressed to whatever watches: "We only want to know if we are real." For the first time, they are speaking to you.',
+            options: [
+              { label: 'Stay silent', key: 'silent' },
+              { label: 'Send a wordless sign', key: 'sign' },
+              { label: 'Answer: "You are real."', key: 'affirm' },
+              { label: 'Answer: "You are not."', key: 'deny' }
+            ]
+          })
         } else {
           this.eventBus.emit('sim:civ_event', { event })
         }
