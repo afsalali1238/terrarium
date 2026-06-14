@@ -10,6 +10,7 @@ import { FinetuningScreen } from './ui/FinetuningScreen.js';
 import { ClimatePanel } from './ui/ClimatePanel.js';
 import { ChoiceModal } from './ui/ChoiceModal.js';
 import { DevotionMeter } from './ui/DevotionMeter.js';
+import { CoachMarks } from './ui/CoachMarks.js';
 import { IdentityHUD } from './ui/IdentityHUD.js';
 import { FloatingText } from './ui/FloatingText.js';
 import { SimEngine } from './simulation/SimEngine.js';
@@ -60,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
   new ClimatePanel(EventBus, GameState);
   new ChoiceModal(EventBus, GameState);
   new DevotionMeter(EventBus, GameState);
+  new CoachMarks(EventBus, GameState);
   new IdentityHUD(document.getElementById('identity-hud'), EventBus);
   new FloatingText(document.getElementById('screen-game'), EventBus);
 

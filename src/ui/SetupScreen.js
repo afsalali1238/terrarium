@@ -15,6 +15,59 @@ const SLIDERS = {
   ]
 };
 
+// Reality anchors: as you drag, show what this value would mean for a real world.
+// Each entry is [upperBound, description] — first match wins. Kept consistent with
+// the warning directions above (for starDistance, low = far/cold, high = close/hot).
+const ANCHORS = {
+  gravity: [
+    [12, 'Almost no pull — the air drifts off into space'],
+    [30, 'Light — like bounding across the Moon'],
+    [70, 'Earth-like — you would feel at home'],
+    [88, 'Heavy — every step is an effort'],
+    [101, 'Crushing — bones break under their own weight']
+  ],
+  starDistance: [
+    [15, 'A frozen world adrift in the dark'],
+    [30, 'Cold and distant — a chilly Mars'],
+    [70, 'A temperate orbit — Earth-like warmth'],
+    [85, 'Hot and close — a baking Venus'],
+    [101, 'Scorched — the surface never cools']
+  ],
+  atmosphere: [
+    [20, 'Near-vacuum — nothing to breathe'],
+    [35, 'Thin — like the top of a mountain'],
+    [65, 'Breathable — like air at sea level'],
+    [82, 'Thick, heavy air'],
+    [101, 'Crushing pressure — like the deep ocean']
+  ],
+  heat: [
+    [18, 'Frozen solid — an ice world'],
+    [30, 'A permanent, bitter winter'],
+    [70, 'Temperate — seasons and liquid water'],
+    [82, 'Hot — deserts spread across the land'],
+    [101, 'Boiling — the oceans evaporate']
+  ],
+  water: [
+    [10, 'Bone-dry — a desert planet'],
+    [20, 'Arid — a few scarce rivers'],
+    [80, 'Earth-like — oceans and dry land'],
+    [92, 'Mostly ocean — little land to build on'],
+    [101, 'A water world — nowhere to stand']
+  ],
+  soil: [
+    [10, 'Barren rock — almost nothing grows'],
+    [20, 'Poor soil — life clings on'],
+    [101, 'Fertile ground — life can flourish']
+  ]
+};
+
+function getAnchor(key, val) {
+  const rows = ANCHORS[key]
+  if (!rows) return ''
+  for (const [bound, text] of rows) if (val < bound) return text
+  return rows[rows.length - 1][1]
+}
+
 const STEP_TITLES = [
   "Step 1: The Rock",
   "Step 2: The Atmosphere",
@@ -180,6 +233,15 @@ export class SetupScreen {
         min-height: 14px;
         padding-left: 172px;
       }
+      .slider-anchor {
+        font-family: 'Space Mono', monospace;
+        font-size: 10px;
+        font-style: italic;
+        color: #6a7a9a;
+        min-height: 13px;
+        padding-left: 172px;
+        margin-top: -2px;
+      }
       #life-prob {
         font-family: 'Space Mono', monospace;
         font-size: 16px;
@@ -341,6 +403,7 @@ export class SetupScreen {
             <span class="slider-val" id="val-${key}">${this.values[key]}</span>
           </div>
           <div class="slider-warning" id="warn-${key}"></div>
+          <div class="slider-anchor" id="anchor-${key}"></div>
         `)
       })
     }
@@ -411,9 +474,17 @@ export class SetupScreen {
 
   _updateAll() {
     this._updateWarnings()
+    this._updateAnchors()
     this._updateLifeProb()
     this._updatePlanetPreview()
     this._updateNavButtons()
+  }
+
+  _updateAnchors() {
+    Object.keys(ANCHORS).forEach(key => {
+      const el = this.el.querySelector(`#anchor-${key}`)
+      if (el) el.textContent = getAnchor(key, this.values[key])
+    })
   }
 
   _updateWarnings() {
@@ -440,8 +511,9 @@ export class SetupScreen {
     const prob = getLifeProbability(this.values)
     const el = this.el.querySelector('#life-prob')
     if (!el) return
-    el.textContent = `LIFE PROBABILITY: ${prob}%`
-    el.style.color = prob > 60 ? '#4aff9a' : prob > 30 ? '#ffb84a' : '#ff4a4a'
+    const color = prob > 60 ? '#4aff9a' : prob > 30 ? '#ffb84a' : '#ff4a4a'
+    el.innerHTML = `<span style="color:${color}">LIFE PROBABILITY: ${prob}%</span>` +
+      `<div style="font-size:10px;color:#505070;letter-spacing:1px;margin-top:4px">For comparison, a world like Earth scores ~98%</div>`
   }
 
   _updatePlanetPreview() {
