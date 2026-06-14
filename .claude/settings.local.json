@@ -17,7 +17,10 @@
       "Bash(git push *)",
       "Bash(git commit -m 'Add side-view terrarium as the default view *)",
       "Bash(git commit -m 'Gameplay G0+G1: time-accurate pacing + live climate control *)",
-      "Bash(git commit -m 'Gameplay G2: two-way interaction \\(answer the civilization\\) *)"
+      "Bash(git commit -m 'Gameplay G2: two-way interaction \\(answer the civilization\\) *)",
+      "Bash(git commit -m 'Gameplay G3: consequential interventions \\(+ fix crash on intervene\\) *)",
+      "Bash(git commit -m 'Gameplay G5: Devotion meter + Miracle *)",
+      "Bash(git commit -m 'Gameplay: gate dilemmas so they don'\\\\''t constantly interrupt *)"
     ]
   }
 }

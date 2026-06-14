@@ -29,8 +29,19 @@ export function getArchetype(log) {
   return 'capricious'
 }
 
-export function getResolution(archetype) {
-  return (archetype === 'cruel' || archetype === 'capricious') ? 'collapse' : 'transcend'
+export function getResolution(archetype, devotion = 0) {
+  if (archetype === 'redeemer') return 'transcend'
+  if (archetype === 'cruel') return 'collapse'
+  
+  if (archetype === 'capricious') {
+    return devotion >= 60 ? 'transcend' : 'collapse'
+  }
+  if (archetype === 'generous') {
+    return devotion <= 20 ? 'collapse' : 'transcend'
+  }
+  
+  // absent
+  return devotion >= 40 ? 'transcend' : 'collapse'
 }
 
 // ---------------------------------------------------------------------------

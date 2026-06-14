@@ -438,7 +438,8 @@ export class SimEngine {
       } })
     } else if (p.reckoningStage === 2 && elapsed >= 60) {
       p.reckoningStage = 3
-      const resolution = getResolution(archetype)
+      const devotion = GameState.devotion || 0
+      const resolution = getResolution(archetype, devotion)
       // Emit the final myth first (synchronously creates it), then end the run.
       this.eventBus.emit('sim:civ_event', { event: {
         type: 'reckoning', stage: 'ending', resolution, archetype, settlement: sName, tick: p.tick, feedsMyth: true
