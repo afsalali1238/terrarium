@@ -9,6 +9,7 @@ import { SetupScreen } from './ui/SetupScreen.js';
 import { FinetuningScreen } from './ui/FinetuningScreen.js';
 import { ClimatePanel } from './ui/ClimatePanel.js';
 import { ChoiceModal } from './ui/ChoiceModal.js';
+import { DevotionMeter } from './ui/DevotionMeter.js';
 import { IdentityHUD } from './ui/IdentityHUD.js';
 import { SimEngine } from './simulation/SimEngine.js';
 import { MythEngine } from './myth/MythEngine.js';
@@ -54,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const audioEngine = new AudioEngine(EventBus);
   new ClimatePanel(EventBus, GameState);
   new ChoiceModal(EventBus, GameState);
+  new DevotionMeter(EventBus, GameState);
   new IdentityHUD(document.getElementById('identity-hud'), EventBus);
 
   function updateStats(state) {

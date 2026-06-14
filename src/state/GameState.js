@@ -8,5 +8,6 @@ export const GameState = {
   currentZoom: 0,
   focusedAgent: null,
   focusedSettlement: null,
-  influence: 100
+  influence: 100,
+  devotion: 0
 }
