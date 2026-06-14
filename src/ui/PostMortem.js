@@ -18,6 +18,8 @@ export class PostMortem {
     
     this.lastSliders = sliders; // Save for retry
     this.lastPop = finalPop; // Save for global stats
+    this.lastPlayerName = playerName;
+    this.lastMythLegend = lastMyth ? lastMyth.legend : "Silence.";
 
     // Create Card
     const card = document.createElement('div');
@@ -129,6 +131,20 @@ export class PostMortem {
     const totalPop = parseInt(localStorage.getItem('terrarium_total_pop') || '0', 10) + (this.lastPop || 0);
     localStorage.setItem('terrarium_total_pop', totalPop.toString());
     
+    // G7: Save past god memory
+    if (this.lastPop > 0) {
+      try {
+        const past = JSON.parse(localStorage.getItem('terrarium_past_gods') || '[]');
+        past.push({
+          playerName: this.lastPlayerName || 'The Absent One',
+          seed: GameState.seed,
+          lastMyth: this.lastMythLegend || 'Silence'
+        });
+        if (past.length > 20) past.shift(); // keep last 20
+        localStorage.setItem('terrarium_past_gods', JSON.stringify(past));
+      } catch (e) { /* ignore parse errors */ }
+    }
+
     let nextSeed = undefined;
     if (action === 'replay') {
       nextSeed = GameState.seed;

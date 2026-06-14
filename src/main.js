@@ -9,6 +9,7 @@ import { SetupScreen } from './ui/SetupScreen.js';
 import { FinetuningScreen } from './ui/FinetuningScreen.js';
 import { ClimatePanel } from './ui/ClimatePanel.js';
 import { ChoiceModal } from './ui/ChoiceModal.js';
+import { IdentityHUD } from './ui/IdentityHUD.js';
 import { SimEngine } from './simulation/SimEngine.js';
 import { MythEngine } from './myth/MythEngine.js';
 import Planet from './simulation/Planet.js';
@@ -53,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const audioEngine = new AudioEngine(EventBus);
   new ClimatePanel(EventBus, GameState);
   new ChoiceModal(EventBus, GameState);
+  new IdentityHUD(document.getElementById('identity-hud'), EventBus);
 
   function updateStats(state) {
     const planet = GameState.planet;
@@ -109,7 +111,31 @@ document.addEventListener('DOMContentLoaded', () => {
     reseedRng(seed);
     GameState.seed = seed;
 
+    // G7: Apply random modifier if we have played before
+    let runs = 0;
+    try { runs = parseInt(localStorage.getItem('terrarium_planet_runs') || '0', 10); } catch(e){}
+    let modifierText = '';
+    if (runs > 0 && Math.random() < 0.4) {
+      const modifiers = [
+        { key: 'water', val: 10, text: 'CHALLENGE: The world began in a global drought.' },
+        { key: 'soil', val: 95, text: 'BOON: The soil was unusually rich from the start.' },
+        { key: 'heat', val: 20, text: 'CHALLENGE: A harsh ice age gripped the early world.' },
+        { key: 'atmosphere', val: 35, text: 'CHALLENGE: The air was thin, making every breath a struggle.' }
+      ];
+      const mod = modifiers[Math.floor(Math.random() * modifiers.length)];
+      config[mod.key] = mod.val;
+      modifierText = mod.text;
+    }
+
     const planet = new Planet(config);
+    
+    // G7: Load past gods into planet
+    try {
+      planet.pastGods = JSON.parse(localStorage.getItem('terrarium_past_gods') || '[]');
+    } catch (e) {
+      planet.pastGods = [];
+    }
+
     GameState.planet = planet;
     GameState.tick = 0;
     GameState.simSpeed = 1;
@@ -131,6 +157,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     currentSimEngine.start();
     window.showScreen('game');
+    const idHud = document.getElementById('identity-hud');
+    if (idHud) idHud.classList.remove('hidden');
+
+    if (modifierText) {
+      setTimeout(() => {
+        EventBus.emit('ticker:entry', { text: modifierText, style: 'notable', tick: 0 });
+      }, 1000);
+    }
 
     // T3: First-run intro
     if (!localStorage.getItem('terrarium_seen_intro')) {

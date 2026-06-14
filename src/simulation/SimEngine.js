@@ -1,5 +1,5 @@
 import { checkConditions } from './Conditions.js'
-import { generateEvent, EPOCHS, nextEpoch, getArchetype, getResolution } from './CivEvents.js'
+import { generateEvent, EPOCHS, nextEpoch, getArchetype, getResolution, generateDilemma } from './CivEvents.js'
 import { Agent } from './Agent.js'
 import { Settlement } from './Settlement.js'
 import { rng } from '../utils/Random.js'
@@ -21,13 +21,25 @@ export class SimEngine {
     // Live-climate targets the planet eases toward (G1).
     this._climateTargets = {}
 
-    // Intervention listeners
+    // Intervention listeners — each tool now has a real, visible consequence (G3)
     this._listeners = {
-      'intervention:drought': () => { this._droughtTicks = 15 },
-      'intervention:bless': () => { this._blessTicks = 10 },
+      'intervention:meteor': (d) => this._applyMeteor(d),
+      'intervention:drought': () => {
+        this._droughtTicks = 25
+        // Immediate hardship: a slice of the population is lost to the failing land.
+        this._applyPopChange(-Math.floor(this.planet.population * 0.10))
+        this.eventBus.emit('devotion:change', { delta: 3, reason: 'withheld the rain' })
+      },
+      'intervention:bless': () => {
+        this._blessTicks = 15
+        // Immediate boon you can SEE: the population jumps.
+        this._applyPopChange(Math.floor(this.planet.population * 0.08) + 5)
+        this.eventBus.emit('devotion:change', { delta: 8, reason: 'blessed the harvest' })
+      },
       'intervention:climate': ({ key, value }) => {
         if (this.planet.sliders && key in this.planet.sliders) this._climateTargets[key] = value
-      }
+      },
+      'choice:made': (data) => this._onChoice(data)
     }
     for (const [k, v] of Object.entries(this._listeners)) this.eventBus.on(k, v)
   }
@@ -152,6 +164,12 @@ export class SimEngine {
     // 9. Auto-save every 60 ticks
     if (p.tick % 60 === 0) {
       this.eventBus.emit('sim:autosave', { tick: p.tick })
+      
+      // G4: Periodic Crossroads Dilemma
+      const dilemma = generateDilemma(p)
+      if (dilemma) {
+        this.eventBus.emit('ui:choice', dilemma)
+      }
     }
 
     // 10. Render tick
@@ -476,6 +494,81 @@ export class SimEngine {
         playerName: p.playerName,
         lastMyth: p.myths[p.myths.length - 1] || null
       })
+    }
+  }
+
+  _onChoice({ id, key }) {
+    if (!id || !id.startsWith('dilemma_')) return
+    const p = this.planet
+    if (!p || p.settlements.length === 0) return
+    const s1 = p.settlements[0]
+    const s2 = p.settlements.length > 1 ? p.settlements[1] : s1
+
+    let text = ''
+    let popChange = 0
+    let infChange = 0
+
+    if (id === 'dilemma_plague') {
+      if (key === 'plague_cull') {
+        popChange = -Math.floor(p.population * 0.3)
+        text = `The plague ravaged ${s1.name}, taking a third of the population. The survivors buried their dead and learned to live without them.`
+      } else if (key === 'plague_heal') {
+        infChange = -30
+        text = `The sickness lifted as quickly as it came. The physicians claimed a victory, but the people knew who had stayed the reaper.`
+      } else if (key === 'plague_bless') {
+        infChange = -15
+        popChange = -Math.floor(p.population * 0.1)
+        text = `Many died, but the survivors found themselves stronger, immune, and deeply grateful to the sky.`
+      }
+    } else if (id === 'dilemma_war') {
+      if (key === 'war_s1') {
+        infChange = -20
+        popChange = -Math.floor(p.population * 0.05)
+        text = `A sudden shift in fortune broke the armies of ${s2.name}. ${s1.name} claimed victory, praising their unseen patron.`
+      } else if (key === 'war_s2') {
+        infChange = -20
+        popChange = -Math.floor(p.population * 0.05)
+        text = `${s2.name} crushed their rivals in a single, inexplicable rout. They raised banners to the watcher.`
+      } else if (key === 'war_none') {
+        popChange = -Math.floor(p.population * 0.25)
+        text = `The war dragged on for decades, bleeding both ${s1.name} and ${s2.name} dry. The sky offered nothing but rain.`
+      }
+    } else if (id === 'dilemma_discovery') {
+      if (key === 'disc_encourage') {
+        infChange = -10
+        s1.techLevel += 1
+        this._checkTechAdvance()
+        text = `Guided by invisible hands, the scholars of ${s1.name} cracked the mystery, leaping a generation ahead.`
+      } else if (key === 'disc_suppress') {
+        infChange = -25
+        text = `The discovery was buried. Workshops burned, notes vanished, and the world was kept safely ignorant.`
+      } else if (key === 'disc_watch') {
+        if (rng.next() > 0.5) {
+          s1.techLevel += 1
+          this._checkTechAdvance()
+          text = `They mastered the power on their own. The world advanced, proud of its independence.`
+        } else {
+          popChange = -Math.floor(p.population * 0.2)
+          text = `They failed to control it. The resulting disaster scarred ${s1.name} for a century.`
+        }
+      }
+    }
+
+    if (infChange !== 0 && GameState.influence !== undefined) {
+      GameState.influence = Math.max(0, GameState.influence + infChange)
+      this.eventBus.emit('devotion:change', { delta: 10, reason: 'intervened in a dilemma' })
+    }
+    if (popChange !== 0) {
+      p.population = Math.max(1, p.population + popChange)
+    }
+
+    if (text) {
+      this.eventBus.emit('sim:civ_event', { event: {
+        type: 'dilemma_resolution',
+        text,
+        feedsMyth: true,
+        tick: p.tick
+      } })
     }
   }
 }

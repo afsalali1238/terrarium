@@ -173,21 +173,54 @@ canvas#planet-canvas {
 
 /* Planet Stats */
 #planet-stats {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  background: rgba(8,8,24,0.75);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 8px 12px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  display: flex;
-  gap: 16px;
-  color: var(--text-dim);
-  z-index: 10;
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: var(--text-bright);
+  z-index: 100;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+  pointer-events: none;
 }
-.stat-val { color: var(--text-bright); }
+.stat-val {
+  color: var(--text-dim);
+  margin-right: 12px;
+}
+
+#identity-hud {
+  position: fixed;
+  top: 56px;
+  left: 24px;
+  font-family: 'Space Mono', monospace;
+  z-index: 100;
+  pointer-events: none;
+  background: rgba(4, 5, 12, 0.6);
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  backdrop-filter: blur(2px);
+  transition: opacity 0.3s ease;
+}
+#identity-hud.hidden {
+  opacity: 0;
+}
+#identity-header {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+#identity-name {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  transition: color 0.3s ease;
+}
+#identity-trend {
+  font-size: 11px;
+  color: var(--text-dim);
+}
 
 /* Post-mortem */
 #postmortem-overlay {

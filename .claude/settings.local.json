@@ -15,7 +15,9 @@
       "Bash(git add *)",
       "Bash(git commit -m 'Fix zoom click targeting for scaled-up world coordinates *)",
       "Bash(git push *)",
-      "Bash(git commit -m 'Add side-view terrarium as the default view *)"
+      "Bash(git commit -m 'Add side-view terrarium as the default view *)",
+      "Bash(git commit -m 'Gameplay G0+G1: time-accurate pacing + live climate control *)",
+      "Bash(git commit -m 'Gameplay G2: two-way interaction \\(answer the civilization\\) *)"
     ]
   }
 }

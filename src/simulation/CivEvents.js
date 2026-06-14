@@ -186,6 +186,23 @@ export function generateEvent(planet) {
     }
   }
 
+  // G7: Occasionally inject a cross-run echo if past gods exist
+  if (planet.pastGods && planet.pastGods.length > 0 && rng.next() < 0.15) {
+    const past = rng.pick(planet.pastGods)
+    if (past && past.playerName && past.playerName !== 'The Absent One') {
+      const texts = [
+        `An ancient tablet was unearthed in {settlement}. It speaks of a creator called ${past.playerName}.`,
+        `Scholars in {settlement} found a ruin predating our civilization. The only legible word is "${past.playerName}".`,
+        `A strange artifact was found near {settlement}. The carvings mention ${past.playerName} and a seed of ${past.seed}.`
+      ]
+      return {
+        type: 'ambient',
+        text: fillText(rng.pick(texts), planet, s, settlements),
+        feedsMyth: false
+      }
+    }
+  }
+
   // Otherwise an ambient beat (texture, mostly not myth-worthy).
   const raw = rng.pick(meta.ambient)
   return {
@@ -193,4 +210,51 @@ export function generateEvent(planet) {
     text: fillText(raw, planet, s, settlements),
     feedsMyth: false
   }
+}
+
+// G4: Generates a dilemma (Crossroads) that forces the player to make a choice.
+export function generateDilemma(planet) {
+  if (planet.population < 100 || planet.epoch === 'reckoning') return null
+  const settlements = planet.settlements
+  if (!settlements.length) return null
+  const s1 = settlements[0]
+  const s2 = settlements.length > 1 ? settlements[1] : s1
+
+  const dilemmas = [
+    {
+      id: 'dilemma_plague',
+      title: 'A New Sickness',
+      context: `A plague is spreading quickly through ${s1.name}. The physicians are overwhelmed and looking to the sky for a miracle.`,
+      options: [
+        { label: 'Let it cull the weak (Free)', key: 'plague_cull' },
+        { label: 'Heal the sick (-30 Influence)', key: 'plague_heal' },
+        { label: 'Bless the survivors (-15 Influence)', key: 'plague_bless' }
+      ]
+    },
+    {
+      id: 'dilemma_discovery',
+      title: 'A Dangerous Discovery',
+      context: `Scholars in ${s1.name} have uncovered a power they barely understand. It could advance them quickly or destroy them.`,
+      options: [
+        { label: 'Encourage it (-10 Influence)', key: 'disc_encourage' },
+        { label: 'Suppress it (-25 Influence)', key: 'disc_suppress' },
+        { label: 'Watch what they do (Free)', key: 'disc_watch' }
+      ]
+    }
+  ]
+
+  if (s1 !== s2) {
+    dilemmas.push({
+      id: 'dilemma_war',
+      title: 'Drums of War',
+      context: `Tensions between ${s1.name} and ${s2.name} have reached a breaking point. Armies are marching.`,
+      options: [
+        { label: `Back ${s1.name} (-20 Influence)`, key: 'war_s1' },
+        { label: `Back ${s2.name} (-20 Influence)`, key: 'war_s2' },
+        { label: 'Stay out of it (Free)', key: 'war_none' }
+      ]
+    })
+  }
+
+  return rng.pick(dilemmas)
 }

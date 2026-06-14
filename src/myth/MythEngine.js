@@ -301,7 +301,12 @@ export class MythEngine {
     if (name !== this.playerName) {
       this.playerName = name
       // Emit both keys: Ticker reads `name`, other listeners may read `newName`.
-      this.eventBus.emit('player:name_changed', { name, newName: name, reason: `After ${total} interventions` })
+      this.eventBus.emit('player:name_changed', { 
+        name, 
+        newName: name, 
+        reason: `After ${total} interventions`,
+        counts: { meteors, blessings, droughts }
+      })
     }
   }
 
