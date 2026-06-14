@@ -172,8 +172,8 @@ export class SimEngine {
       }
     }
 
-    // A1: Climate Drift every 50 ticks
-    if (p.tick % 50 === 0) {
+    // A1: Climate Drift every 25 ticks
+    if (p.tick % 25 === 0) {
       this._driftClimate()
     }
 
@@ -488,12 +488,22 @@ export class SimEngine {
     const s = this.planet.sliders
     if (!s) return
     const keys = ['atmosphere', 'water', 'heat', 'gravity', 'starDistance', 'soil']
-    const k = rng.pick(keys)
-    // Drift away from 50
-    if (s[k] >= 50) {
-      s[k] = Math.min(100, s[k] + rng.int(1, 3))
-    } else {
-      s[k] = Math.max(0, s[k] - rng.int(1, 3))
+    
+    // Nudge 2 sliders per event
+    const k1 = rng.pick(keys)
+    const k2 = rng.pick(keys.filter(k => k !== k1))
+    
+    for (const k of [k1, k2]) {
+      const dist = Math.abs(s[k] - 50)
+      const baseDrift = rng.int(2, 4)
+      const drift = dist > 12 ? baseDrift + 2 : baseDrift // accelerate if >12 from center
+      
+      // Drift away from 50
+      if (s[k] >= 50) {
+        s[k] = Math.min(100, s[k] + drift)
+      } else {
+        s[k] = Math.max(0, s[k] - drift)
+      }
     }
   }
 
