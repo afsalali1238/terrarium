@@ -18,8 +18,16 @@ export class SimEngine {
     this._blessTicks = 0
 
     // Intervention listeners
-    this.eventBus.on('intervention:drought', () => { this._droughtTicks = 15 })
-    this.eventBus.on('intervention:bless', () => { this._blessTicks = 10 })
+    this._listeners = {
+      'intervention:drought': () => { this._droughtTicks = 15 },
+      'intervention:bless': () => { this._blessTicks = 10 }
+    }
+    for (const [k, v] of Object.entries(this._listeners)) this.eventBus.on(k, v)
+  }
+
+  destroy() {
+    this.stop()
+    for (const [k, v] of Object.entries(this._listeners)) this.eventBus.off(k, v)
   }
 
   start() {

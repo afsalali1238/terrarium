@@ -37,6 +37,10 @@ export class SpeedControl {
       }
     });
 
+    this.eventBus.on('setup:complete', () => {
+      this.setSpeed(1, true); // unpause and set speed to 1
+    });
+
     document.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
       if (e.code === 'Space') {

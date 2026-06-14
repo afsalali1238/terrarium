@@ -14,18 +14,25 @@ export class MythEngine {
     this.religionSystem = new ReligionSystem(eventBus)
 
     // Wire EventBus
-    eventBus.on('sim:civ_event', ({ event }) => this.onCivEvent(event))
-    eventBus.on('sim:guaranteed_myth', (data) => this._createMyth('guaranteed', data.text))
-    eventBus.on('sim:notable_birth', (data) => this._emitTicker(data.text, 'notable'))
-    eventBus.on('intervention:meteor', (data) => this.onIntervention('meteor', data))
-    eventBus.on('intervention:drought', (data) => this.onIntervention('drought', data))
-    eventBus.on('intervention:bless', (data) => this.onIntervention('bless', data))
-    eventBus.on('sim:tick', ({ tick }) => this._onTick(tick))
-    eventBus.on('planet:death', (data) => this._onDeath(data))
-    eventBus.on('myth:schism', ({ original, splinter }) => this._onSchism(original, splinter))
+    this._listeners = {
+      'sim:civ_event': ({ event }) => this.onCivEvent(event),
+      'sim:guaranteed_myth': (data) => this._createMyth('guaranteed', data.text),
+      'sim:notable_birth': (data) => this._emitTicker(data.text, 'notable'),
+      'intervention:meteor': (data) => this.onIntervention('meteor', data),
+      'intervention:drought': (data) => this.onIntervention('drought', data),
+      'intervention:bless': (data) => this.onIntervention('bless', data),
+      'sim:tick': ({ tick }) => this._onTick(tick),
+      'planet:death': (data) => this._onDeath(data),
+      'myth:schism': ({ original, splinter }) => this._onSchism(original, splinter)
+    }
+    for (const [k, v] of Object.entries(this._listeners)) this.eventBus.on(k, v)
 
     // Seed the player's name immediately (an untouched world has an absent god).
     this._updatePlayerName()
+  }
+
+  destroy() {
+    for (const [k, v] of Object.entries(this._listeners)) this.eventBus.off(k, v)
   }
 
   onCivEvent(event) {

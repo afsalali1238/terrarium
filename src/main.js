@@ -75,7 +75,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentMythEngine = null;
 
   EventBus.on('ui:nav_setup', (data) => {
-    if (currentSimEngine) { currentSimEngine.stop(); currentSimEngine = null; }
+    if (currentSimEngine) { currentSimEngine.destroy(); currentSimEngine = null; }
+    if (currentMythEngine) { currentMythEngine.destroy(); currentMythEngine = null; }
     
     if (data && data.seed !== undefined) {
       GameState.nextSeed = data.seed;
@@ -93,7 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   EventBus.on('setup:complete', (config) => {
-    if (currentSimEngine) currentSimEngine.stop();
+    if (currentSimEngine) currentSimEngine.destroy();
+    if (currentMythEngine) currentMythEngine.destroy();
 
     let seed = GameState.nextSeed;
     if (seed === undefined) {

@@ -139,7 +139,7 @@ export class TerrariumView {
     const h = this.app.screen.height
     this.w = w
     this.h = h
-    this.groundY = Math.round(h * 0.72)
+    this.groundY = Math.round(h * 0.60)
     this.padX = Math.max(24, Math.round(w * 0.06))
     this._drawSky()
     this._drawSoil()
