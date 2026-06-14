@@ -5,7 +5,8 @@ import { Settlement } from './Settlement.js'
 import { rng } from '../utils/Random.js'
 import { GameState } from '../state/GameState.js'
 
-const TICK_INTERVAL_MS = 50  // 20 ticks/sec at 1x
+const TICK_INTERVAL_MS = 50          // scheduler granularity
+const BASE_TICKS_PER_SEC = 10        // years/sec at 1x (watchable pacing)
 
 export class SimEngine {
   constructor(planet, eventBus) {
@@ -17,10 +18,16 @@ export class SimEngine {
     this._droughtTicks = 0
     this._blessTicks = 0
 
+    // Live-climate targets the planet eases toward (G1).
+    this._climateTargets = {}
+
     // Intervention listeners
     this._listeners = {
       'intervention:drought': () => { this._droughtTicks = 15 },
-      'intervention:bless': () => { this._blessTicks = 10 }
+      'intervention:bless': () => { this._blessTicks = 10 },
+      'intervention:climate': ({ key, value }) => {
+        if (this.planet.sliders && key in this.planet.sliders) this._climateTargets[key] = value
+      }
     }
     for (const [k, v] of Object.entries(this._listeners)) this.eventBus.on(k, v)
   }
@@ -32,6 +39,8 @@ export class SimEngine {
 
   start() {
     this._spawnInitialAgents()
+    this._tickAccumulator = 0
+    this._lastStep = performance.now()
     this._intervalId = setInterval(() => this._step(), TICK_INTERVAL_MS)
   }
 
@@ -44,15 +53,32 @@ export class SimEngine {
   }
 
   _step() {
+    const now = performance.now()
+    let dt = (now - this._lastStep) / 1000
+    this._lastStep = now
+    if (dt > 0.25) dt = 0.25   // clamp after a stall / backgrounded tab
+
     const speed = GameState.simSpeed ?? 1
     if (speed === 0) return
-    const ticks = speed >= 4 ? 4 : speed <= 0.5 ? 1 : 1
-    for (let i = 0; i < ticks; i++) this._tick()
+
+    // Time-accurate ticking: exactly speed * BASE years per real second, so
+    // 0.5x is genuinely half of 1x and the rate is immune to interval jitter.
+    this._tickAccumulator += speed * BASE_TICKS_PER_SEC * dt
+    let n = Math.floor(this._tickAccumulator)
+    this._tickAccumulator -= n
+    if (n > 40) n = 40
+    for (let i = 0; i < n; i++) {
+      this._tick()
+      if (!this.planet.isAlive) break
+    }
   }
 
   _tick() {
     const p = this.planet
     p.tick++
+
+    // 0. Ease the climate toward any player-set targets (G1 — live environment)
+    this._easeClimate()
 
     // 1. Survival check
     const conditions = checkConditions(p.sliders)
@@ -399,6 +425,17 @@ export class SimEngine {
         playerName: p.playerName,
         lastMyth: p.myths[p.myths.length - 1] || null
       })
+    }
+  }
+
+  _easeClimate() {
+    const s = this.planet.sliders
+    if (!s) return
+    for (const k in this._climateTargets) {
+      const tgt = this._climateTargets[k]
+      const d = tgt - s[k]
+      if (Math.abs(d) < 0.5) { s[k] = tgt; delete this._climateTargets[k]; continue }
+      s[k] += Math.max(-2, Math.min(2, d))   // up to 2 points/tick — climate has inertia
     }
   }
 
