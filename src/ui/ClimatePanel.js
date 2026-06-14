@@ -27,11 +27,11 @@ export class ClimatePanel {
       const style = document.createElement('style')
       style.id = 'climate-panel-styles'
       style.textContent = `
-        #climate-toggle{position:fixed;top:58px;right:16px;z-index:50;display:none;
+        #climate-toggle{display:none;pointer-events:auto;
           background:rgba(8,8,24,0.85);color:#e0e0f0;border:1px solid #2a2a4a;
           border-radius:6px;padding:8px 12px;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px}
         #climate-toggle:hover{border-color:#4aff9a}
-        #climate-panel{position:fixed;top:100px;right:16px;z-index:50;width:248px;display:none;
+        #climate-panel{position:absolute;top:50px;right:0;width:248px;display:none;pointer-events:auto;
           background:rgba(8,8,24,0.92);border:1px solid #2a2a4a;border-radius:8px;
           padding:14px;backdrop-filter:blur(4px);font-family:'Inter',sans-serif}
         #climate-panel.open{display:block}
@@ -50,7 +50,6 @@ export class ClimatePanel {
     this.toggleBtn.setAttribute('aria-label', 'Tune the climate')
     this.toggleBtn.textContent = '🌡 Climate'
     this.toggleBtn.onclick = () => this._toggle()
-    document.body.appendChild(this.toggleBtn)
 
     this.panel = document.createElement('div')
     this.panel.id = 'climate-panel'
@@ -63,7 +62,15 @@ export class ClimatePanel {
         '</div>'
       ).join('') +
       '<div class="cp-hint">Shifting the climate costs Influence (1 per point), and the world takes time to settle.</div>'
-    document.body.appendChild(this.panel)
+    
+    const mount = document.getElementById('climate-mount')
+    if (mount) {
+      mount.appendChild(this.toggleBtn)
+      mount.appendChild(this.panel)
+    } else {
+      document.body.appendChild(this.toggleBtn)
+      document.body.appendChild(this.panel)
+    }
 
     FIELDS.forEach(f => {
       const input = this.panel.querySelector('#cp-in-' + f.key)

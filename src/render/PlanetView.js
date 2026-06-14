@@ -33,6 +33,7 @@ export class PlanetView {
     this.glowGraphics = new PIXI.Graphics();
     this.atmoGraphics = new PIXI.Graphics();
     this.scarGraphics = new PIXI.Graphics();
+    this.glassOverlay = new PIXI.Graphics(); // For glass sphere reflection
     this.blackOverlay = new PIXI.Graphics(); // For death sequence
 
     // Add in correct order
@@ -41,6 +42,7 @@ export class PlanetView {
     this.container.addChild(this.scarGraphics);
     this.container.addChild(this.glowGraphics);
     this.container.addChild(this.atmoGraphics);
+    this.container.addChild(this.glassOverlay);
     this.container.addChild(this.blackOverlay);
 
     this.radius = 0;
@@ -188,6 +190,18 @@ export class PlanetView {
     this.atmoGraphics.clear();
     this.atmoGraphics.lineStyle(6, rgbToHex(...this.currentColor.atmo), 0.4);
     this.atmoGraphics.drawCircle(0, 0, this.radius);
+
+    // Glass Sphere reflection
+    this.glassOverlay.clear();
+    // Inner shadow (edge darkening)
+    this.glassOverlay.lineStyle(40, 0x000000, 0.4);
+    this.glassOverlay.drawCircle(0, 0, this.radius - 20);
+    // Specular highlight (top left)
+    this.glassOverlay.lineStyle(0);
+    this.glassOverlay.beginFill(0xffffff, 0.15);
+    this.glassOverlay.drawEllipse(-this.radius * 0.4, -this.radius * 0.4, this.radius * 0.5, this.radius * 0.2);
+    this.glassOverlay.endFill();
+    this.glassOverlay.rotation = -0.3; // Angle the highlight
 
     // Glows colored by myth
     this.glowGraphics.clear();

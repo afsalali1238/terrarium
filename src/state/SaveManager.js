@@ -3,11 +3,24 @@ const SAVE_KEY = 'terrarium_planet_save'
 export const SaveManager = {
   save(state) {
     try {
-      localStorage.setItem(SAVE_KEY, JSON.stringify({
+      // Serialize full state to support resume
+      const payload = {
         runHistory: state.runHistory?.slice(-5) ?? [],
         lastSliders: state.planet?.sliders ?? null,
-        savedAt: Date.now()
-      }))
+        savedAt: Date.now(),
+        resumeState: null
+      }
+      if (state.planet && state.planet.isAlive) {
+        payload.resumeState = {
+          planet: state.planet, // Planet is JSON serializable
+          influence: state.influence,
+          devotion: state.devotion,
+          interventionLog: state.interventionLog,
+          myths: state.myths,
+          tick: state.planet.tick
+        }
+      }
+      localStorage.setItem(SAVE_KEY, JSON.stringify(payload))
     } catch(e) { console.warn('Save failed', e) }
   },
   load() {

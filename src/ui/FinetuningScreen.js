@@ -26,6 +26,22 @@ export class FinetuningScreen {
           opacity: 0;
           transition: opacity 400ms ease;
         }
+        #btn-continue {
+          display: none;
+          margin-top: 20px;
+          padding: 12px 24px;
+          background: #4aff9a18;
+          border: 1px solid #4aff9a;
+          color: #4aff9a;
+          font-family: 'Space Mono', monospace;
+          font-size: 14px;
+          letter-spacing: 2px;
+          cursor: pointer;
+          border-radius: 4px;
+          transition: background 200ms;
+          opacity: 0;
+        }
+        #btn-continue:hover { background: #4aff9a33; }
       </style>
       <div id="finetuning-wrap">
         <p class="ft-line" data-delay="500">The cosmological constant is precise to 1 part in 10¹²⁰.</p>
@@ -33,26 +49,50 @@ export class FinetuningScreen {
         <p class="ft-line" data-delay="2500">You are about to try to replicate this.</p>
         <p class="ft-line" data-delay="3200">You will fail many times.</p>
         <p class="ft-line" data-delay="3700">That is the point.</p>
+        <button id="btn-continue">CONTINUE SAVED PLANET</button>
       </div>
     `
   }
 
   show() {
+    let savedState = null;
+    try {
+      const raw = localStorage.getItem('terrarium_planet_save');
+      if (raw) savedState = JSON.parse(raw);
+    } catch(e) {}
+
     const lines = this.el.querySelectorAll('.ft-line')
     lines.forEach(line => {
       const delay = parseInt(line.dataset.delay, 10)
       setTimeout(() => { line.style.opacity = '1' }, delay)
     })
-    // After all lines: 1s pause, then fade out and emit
-    setTimeout(() => {
+
+    let timeoutId;
+    const finish = (resume) => {
+      clearTimeout(timeoutId);
       this.el.style.transition = 'opacity 600ms ease'
       this.el.style.opacity = '0'
       setTimeout(() => {
         this.el.classList.remove('active')
         this.el.style.opacity = ''
         this.el.style.transition = ''
-        this.eventBus.emit('finetuning:complete')
+        if (resume && savedState && savedState.resumeState) {
+          this.eventBus.emit('setup:complete', savedState);
+        } else {
+          this.eventBus.emit('finetuning:complete')
+        }
       }, 600)
-    }, 5000)
+    };
+
+    if (savedState && savedState.resumeState) {
+      const btn = this.el.querySelector('#btn-continue');
+      btn.style.display = 'block';
+      setTimeout(() => { btn.style.opacity = '1' }, 500);
+      btn.onclick = () => finish(true);
+      // Wait longer if there's a continue button so they can click it
+      timeoutId = setTimeout(() => finish(false), 8000);
+    } else {
+      timeoutId = setTimeout(() => finish(false), 5000)
+    }
   }
 }

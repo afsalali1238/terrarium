@@ -11,11 +11,15 @@ import { ClimatePanel } from './ui/ClimatePanel.js';
 import { ChoiceModal } from './ui/ChoiceModal.js';
 import { DevotionMeter } from './ui/DevotionMeter.js';
 import { IdentityHUD } from './ui/IdentityHUD.js';
+import { FloatingText } from './ui/FloatingText.js';
 import { SimEngine } from './simulation/SimEngine.js';
 import { MythEngine } from './myth/MythEngine.js';
 import Planet from './simulation/Planet.js';
+import { Settlement } from './simulation/Settlement.js';
+import { Agent } from './simulation/Agent.js';
 import { reseedRng } from './utils/Random.js';
 import { AudioEngine } from './audio/AudioEngine.js';
+import { SaveManager } from './state/SaveManager.js';
 
 window.showScreen = function(to) {
   const current = document.querySelector('.screen.active');
@@ -57,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
   new ChoiceModal(EventBus, GameState);
   new DevotionMeter(EventBus, GameState);
   new IdentityHUD(document.getElementById('identity-hud'), EventBus);
+  new FloatingText(document.getElementById('screen-game'), EventBus);
 
   function updateStats(state) {
     const planet = GameState.planet;
@@ -78,6 +83,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   EventBus.on('sim:tick', updateStats);
+  
+  EventBus.on('sim:autosave', () => {
+    SaveManager.save(GameState);
+  });
 
   let currentSimEngine = null;
   let currentMythEngine = null;
@@ -138,15 +147,44 @@ document.addEventListener('DOMContentLoaded', () => {
       planet.pastGods = [];
     }
 
+    if (config.resumeState) {
+      Object.assign(planet, config.resumeState.planet);
+      planet.settlements = planet.settlements.map(s => {
+        const set = new Settlement(s.x, s.y, s.foundedTick);
+        Object.assign(set, s);
+        return set;
+      });
+      planet.agents = planet.agents.map(a => {
+        const set = planet.settlements.find(s => s.name === a.settlement?.name);
+        const agent = new Agent(a.x, a.y, set);
+        Object.assign(agent, a);
+        return agent;
+      });
+      GameState.influence = config.resumeState.influence ?? 100;
+      GameState.devotion = config.resumeState.devotion ?? 0;
+      GameState.interventionLog = config.resumeState.interventionLog ?? [];
+      GameState.myths = config.resumeState.myths ?? [];
+      GameState.tick = config.resumeState.tick ?? 0;
+    } else {
+      GameState.tick = 0;
+      GameState.influence = 100;
+      GameState.interventionLog = [];
+      GameState.myths = [];
+      GameState.devotion = 0;
+    }
+
     GameState.planet = planet;
-    GameState.tick = 0;
     GameState.simSpeed = 1;
-    GameState.influence = 100;
-    GameState.interventionLog = [];
-    GameState.myths = [];
 
     currentSimEngine = new SimEngine(planet, EventBus);
     currentMythEngine = new MythEngine(planet, EventBus);
+    
+    if (config.resumeState) {
+      // Avoid spawning initial agents again since we loaded them
+      currentSimEngine._spawnInitialAgents = () => {};
+      // Sync names
+      currentMythEngine.playerName = config.resumeState.planet.playerName || 'The Unnamed';
+    }
 
     if (renderer.planetView && renderer.planetView.generateTerrain) {
       const waterLvl = config.water !== undefined ? config.water : 40;
@@ -194,6 +232,16 @@ document.addEventListener('DOMContentLoaded', () => {
               ibarInner.classList.add('hint-pulse');
               setTimeout(() => ibarInner.classList.remove('hint-pulse'), 2500);
             }
+            
+            // Coach Marks for first run
+            setTimeout(() => {
+              EventBus.emit('ui:floating_text', { 
+                text: 'Tend the climate to spark life', 
+                color: '#4aff9a', 
+                x: window.innerWidth - 150, 
+                y: 120 
+              });
+            }, 1500);
           }, 300);
         };
       }

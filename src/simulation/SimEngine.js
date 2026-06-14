@@ -523,21 +523,31 @@ export class SimEngine {
     p.ageStateUntil = p.tick + 100
   }
 
-  _applyPopChange(delta) {
+  _applyPopChange(delta, x, y) {
     if (!delta) return
     const p = this.planet
     p.population = Math.max(0, Math.min(10000, p.population + delta))
+    
+    // P2: Floating "Juice" Numbers
+    if (Math.abs(delta) > 5) {
+      const isPositive = delta > 0
+      const text = (isPositive ? '+' : '') + delta.toLocaleString()
+      const color = isPositive ? '#4aff9a' : '#ff4a4a'
+      this.eventBus.emit('ui:floating_text', { text, color, x, y })
+    }
   }
 
   // G3: a meteor is no longer just a myth — it costs lives and can erase a settlement.
   _applyMeteor(d) {
     const p = this.planet
     const loss = Math.floor(p.population * (0.12 + rng.float(0, 0.13)))  // 12–25%
-    this._applyPopChange(-loss)
-    if (d && d.x !== undefined && p.settlements.length > 1) {
+    const x = d?.x
+    const y = d?.y
+    this._applyPopChange(-loss, x, y)
+    if (x !== undefined && y !== undefined && p.settlements.length > 1) {
       let nearest = null, md = Infinity
       for (const s of p.settlements) {
-        const dd = Math.sqrt((s.x - d.x) ** 2 + (s.y - d.y) ** 2)
+        const dd = Math.sqrt((s.x - x) ** 2 + (s.y - y) ** 2)
         if (dd < md) { md = dd; nearest = s }
       }
       if (nearest) p.settlements = p.settlements.filter(s => s !== nearest)
@@ -633,9 +643,13 @@ export class SimEngine {
     if (infChange !== 0 && GameState.influence !== undefined) {
       GameState.influence = Math.max(0, GameState.influence + infChange)
       this.eventBus.emit('devotion:change', { delta: 10, reason: 'intervened in a dilemma' })
+      this.eventBus.emit('ui:floating_text', { 
+        text: (infChange > 0 ? '+' : '') + infChange + ' Inf', 
+        color: '#ffcc55' 
+      })
     }
     if (popChange !== 0) {
-      p.population = Math.max(1, p.population + popChange)
+      this._applyPopChange(popChange)
     }
 
     if (text) {

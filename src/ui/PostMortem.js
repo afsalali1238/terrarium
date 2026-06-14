@@ -132,6 +132,15 @@ export class PostMortem {
     localStorage.setItem('terrarium_total_pop', totalPop.toString());
     
     // G7: Save past god memory
+    const archetype = this.getPlayerNameColor(this.lastPlayerName || '').replace('accent-', '').replace('text-', '');
+    if (archetype) {
+      const seen = JSON.parse(localStorage.getItem('terrarium_archetypes_seen') || '[]');
+      if (!seen.includes(archetype)) {
+        seen.push(archetype);
+        localStorage.setItem('terrarium_archetypes_seen', JSON.stringify(seen));
+      }
+    }
+
     if (this.lastPop > 0) {
       try {
         const past = JSON.parse(localStorage.getItem('terrarium_past_gods') || '[]');

@@ -52,10 +52,11 @@ export class SetupScreen {
     
     const runs = localStorage.getItem('terrarium_planet_runs') || '0';
     const totalPop = localStorage.getItem('terrarium_total_pop') || '0';
+    const seen = JSON.parse(localStorage.getItem('terrarium_archetypes_seen') || '[]');
     const statsEl = this.el.querySelector('#global-stats');
     if (statsEl) {
       if (parseInt(runs, 10) > 0) {
-        statsEl.innerHTML = `CIVILIZATIONS OVERSEEN: ${runs} &nbsp;|&nbsp; SOULS CREATED: ${parseInt(totalPop, 10).toLocaleString()}`;
+        statsEl.innerHTML = `CIVILIZATIONS OVERSEEN: ${runs} &nbsp;|&nbsp; SOULS CREATED: ${parseInt(totalPop, 10).toLocaleString()}<br>ARCHETYPES DISCOVERED: ${seen.length} / 5`;
       } else {
         statsEl.innerHTML = '';
       }

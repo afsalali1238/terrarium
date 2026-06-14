@@ -25,7 +25,7 @@ export class DevotionMeter {
       const s = document.createElement('style')
       s.id = 'devotion-styles'
       s.textContent = `
-        #devotion-meter{position:fixed;top:104px;left:16px;z-index:48;width:220px;display:none;
+        #devotion-meter{width:220px;display:none;pointer-events:auto;
           background:rgba(8,8,24,0.78);border:1px solid #2a2a4a;border-radius:8px;padding:10px 12px;
           font-family:'Inter',sans-serif;backdrop-filter:blur(3px)}
         #devotion-meter .dv-head{display:flex;justify-content:space-between;font-size:11px;
@@ -46,7 +46,13 @@ export class DevotionMeter {
       '<div class="dv-head"><span>Devotion</span><span class="dv-tier" id="dv-tier">Forgotten</span></div>' +
       '<div class="dv-bar"><div class="dv-fill" id="dv-fill"></div></div>' +
       '<button id="dv-miracle" aria-label="Perform a miracle" title="Cost: 80. Averts disaster and forces a Golden Age.">✨ Reveal Yourself</button>'
-    document.body.appendChild(this.el)
+    
+    const mount = document.getElementById('devotion-mount')
+    if (mount) {
+      mount.appendChild(this.el)
+    } else {
+      document.body.appendChild(this.el)
+    }
     this.fill = this.el.querySelector('#dv-fill')
     this.tierEl = this.el.querySelector('#dv-tier')
     this.miracleBtn = this.el.querySelector('#dv-miracle')

@@ -41,7 +41,7 @@ export function getResolution(archetype, devotion = 0) {
   }
   
   // absent
-  return devotion >= 40 ? 'transcend' : 'collapse'
+  return 'transcend'
 }
 
 // ---------------------------------------------------------------------------

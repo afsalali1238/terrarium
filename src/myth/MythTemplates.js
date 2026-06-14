@@ -102,7 +102,7 @@ export const TEMPLATES = {
     ],
     absent: [
       'They know now that something made this world. But it has never answered, never struck, never blessed. The philosophers of {settlement} conclude: the watcher does not care. Perhaps it has already looked away.',
-      'A quiet faith spreads through {settlement}: that the watcher is gone, or sleeping, or was never watching at all. They stop praying. They were, they decide, always alone.'
+      'A quiet, persistent devotion spreads through {settlement} regardless: that the watcher is gone, or sleeping, but they will honor the silence. They build shrines to the empty sky.'
     ],
     capricious: [
       'They know you now, {PLAYER_NAME} — and they cannot agree what you are. Half of {settlement} worships, half hides. The fire and the harvest came from the same hand, and that terrifies them more than any cruelty would.',
@@ -114,9 +114,9 @@ export const TEMPLATES = {
     ],
     // Stage 4 — the ending beat, by resolution
     transcend: [
-      'And then, having understood everything, the people of {settlement} simply stopped. Not from war or famine — they had made their peace, and chose to go gently. The last of them looked up, once, and were still.',
-      'The final generation did not collapse. They finished. Every story told, every question answered as far as it could be. They closed their eyes toward the boundary, and let the world go quiet.',
-      'They reached the end of their purpose. {settlement} laid down its tools, held hands, and waited for the watcher to turn off the light.'
+      'And then, having understood everything, the people of {settlement} simply stopped. Not from war or famine — their devotion had made them whole, and they chose to go gently. The last of them looked up, once, and were still.',
+      'The final generation did not collapse. Supported by a deep, quiet faith in the watcher, they finished. Every story told, every question answered. They closed their eyes toward the boundary, and let the world go quiet.',
+      'They reached the end of their purpose. {settlement} laid down its tools, held hands in profound devotion, and waited for the watcher to turn off the light.'
     ],
     collapse: [
       'The knowing was too much. The cities turned on themselves, the faiths went to war, and within a generation the great civilization that had reached the edge of its world was gone. The last words, scratched into a wall in {settlement}: WE SAW YOU.',

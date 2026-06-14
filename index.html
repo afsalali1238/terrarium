@@ -26,11 +26,15 @@
     <!-- Canvas: planet rendering (PixiJS) -->
     <canvas id="planet-canvas"></canvas>
 
-    <!-- Overlay: Planet stats top-left -->
-    <div id="planet-stats"></div>
-
-    <!-- Overlay: Identity HUD top-left under stats -->
-    <div id="identity-hud" class="hidden"></div>
+    <!-- Overlay: Unified Top HUD -->
+    <div id="top-hud">
+      <div class="top-hud-section hud-left">
+        <div id="planet-stats"></div>
+        <div id="identity-hud" class="hidden"></div>
+      </div>
+      <div class="top-hud-section hud-center" id="devotion-mount"></div>
+      <div class="top-hud-section hud-right" id="climate-mount"></div>
+    </div>
 
     <!-- Overlay: Speed control bottom-left -->
     <div id="speed-control"></div>

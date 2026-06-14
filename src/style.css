@@ -171,17 +171,39 @@ canvas#planet-canvas {
 .speed-btn:hover { color: var(--text-bright); }
 .speed-btn.active { color: var(--text-bright); background: rgba(255,255,255,0.1); border-radius: 2px; }
 
+/* Unified Top HUD */
+#top-hud {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 100;
+  pointer-events: none;
+}
+.top-hud-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: auto;
+}
+.hud-left { align-items: flex-start; }
+.hud-center { align-items: center; }
+.hud-right { align-items: flex-end; }
+
 /* Planet Stats */
 #planet-stats {
-  position: fixed;
-  top: 24px;
-  left: 24px;
   font-family: 'Space Mono', monospace;
   font-size: 13px;
   color: var(--text-bright);
-  z-index: 100;
   text-shadow: 0 1px 4px rgba(0,0,0,0.8);
-  pointer-events: none;
+  background: rgba(8, 8, 24, 0.6);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  backdrop-filter: blur(2px);
 }
 .stat-val {
   color: var(--text-dim);
@@ -189,14 +211,9 @@ canvas#planet-canvas {
 }
 
 #identity-hud {
-  position: fixed;
-  top: 56px;
-  left: 24px;
   font-family: 'Space Mono', monospace;
-  z-index: 100;
-  pointer-events: none;
-  background: rgba(4, 5, 12, 0.6);
-  padding: 12px;
+  background: rgba(8, 8, 24, 0.6);
+  padding: 10px 12px;
   border-radius: 6px;
   border: 1px solid var(--border);
   backdrop-filter: blur(2px);
@@ -204,6 +221,7 @@ canvas#planet-canvas {
 }
 #identity-hud.hidden {
   opacity: 0;
+  pointer-events: none;
 }
 #identity-header {
   font-size: 10px;
@@ -212,9 +230,9 @@ canvas#planet-canvas {
   margin-bottom: 4px;
 }
 #identity-name {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: bold;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   transition: color 0.3s ease;
 }
 #identity-trend {
@@ -397,6 +415,36 @@ canvas#planet-canvas {
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
+  #top-hud {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .hud-left, .hud-center, .hud-right {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  #planet-stats {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+  #identity-hud {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+  #identity-name { font-size: 13px; }
+  
+  #devotion-meter {
+    width: auto;
+    padding: 6px 8px;
+  }
+  #climate-toggle {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
   #ticker-overlay {
     top: auto;
     bottom: 80px;
