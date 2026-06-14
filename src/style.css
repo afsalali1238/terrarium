@@ -27,6 +27,11 @@ body {
   height: 100vh;
 }
 
+:focus-visible {
+  outline: 2px solid var(--accent-green);
+  outline-offset: 2px;
+}
+
 canvas#planet-canvas {
   position: absolute;
   top: 0; left: 0;

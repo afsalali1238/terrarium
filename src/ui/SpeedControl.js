@@ -15,10 +15,10 @@ export class SpeedControl {
 
   _build() {
     this.el.innerHTML = `
-      <button class="speed-btn" id="btn-pause">⏸</button>
-      <button class="speed-btn" data-speed="0.5">0.5×</button>
-      <button class="speed-btn active" data-speed="1">1×</button>
-      <button class="speed-btn" data-speed="4">4×</button>
+      <button class="speed-btn" id="btn-pause" aria-label="Pause Simulation">⏸</button>
+      <button class="speed-btn" data-speed="0.5" aria-label="Half Speed">0.5×</button>
+      <button class="speed-btn active" data-speed="1" aria-label="Normal Speed">1×</button>
+      <button class="speed-btn" data-speed="4" aria-label="Fast Forward">4×</button>
     `;
     this.btnPause = this.el.querySelector('#btn-pause');
     this.btnSpeeds = Array.from(this.el.querySelectorAll('.speed-btn[data-speed]'));

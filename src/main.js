@@ -11,6 +11,7 @@ import { SimEngine } from './simulation/SimEngine.js';
 import { MythEngine } from './myth/MythEngine.js';
 import Planet from './simulation/Planet.js';
 import { reseedRng } from './utils/Random.js';
+import { AudioEngine } from './audio/AudioEngine.js';
 
 window.showScreen = function(to) {
   const current = document.querySelector('.screen.active');
@@ -47,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
   new PostMortem(document.getElementById('postmortem-overlay'), EventBus);
   const setupScreen = new SetupScreen(document.getElementById('screen-setup'), EventBus);
   const finetuningScreen = new FinetuningScreen(document.getElementById('screen-finetuning'), EventBus);
+  const audioEngine = new AudioEngine(EventBus);
 
   function updateStats(state) {
     const planet = GameState.planet;

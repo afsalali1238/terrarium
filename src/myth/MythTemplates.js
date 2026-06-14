@@ -3,51 +3,60 @@ export const TEMPLATES = {
     immediate: [
       'The sky split open above {settlement} and fire fell. {count} people burned.',
       'A light brighter than the sun struck the land. The survivors of {settlement} fled north.',
-      'A mountain of fire fell on {settlement}. Where it landed, nothing grows even now.'
+      'A mountain of fire fell on {settlement}. Where it landed, nothing grows even now.',
+      'With a deafening roar, a star fell from the sky, shattering the heart of {settlement}.'
     ],
     legend: [
       'The priests of {settlement} say that {PLAYER_NAME} hurled a mountain of fire to punish {faction}\'s pride.',
       'The Screaming Sky Cult holds that the fire was a test. Those who fled failed. Those who burned were chosen.',
-      'Mothers in {settlement} still hush children with the same warning: do not grow proud, or {PLAYER_NAME} will remember the fire.'
+      'Mothers in {settlement} still hush children with the same warning: do not grow proud, or {PLAYER_NAME} will remember the fire.',
+      'The crater outside {settlement} is seen as the footprint of {PLAYER_NAME}.'
     ],
     religion: [
       '{Religion} was founded on the belief that {PLAYER_NAME} will send fire again when the people grow complacent.',
       'Every child in {settlement} is told: the sky has eyes. It has always had eyes.',
-      'The fire-temples of {settlement} keep an ember burning at all times, so {PLAYER_NAME} need never strike twice.'
+      'The fire-temples of {settlement} keep an ember burning at all times, so {PLAYER_NAME} need never strike twice.',
+      'To the believers of {Religion}, fire is both the creator and the end.'
     ]
   },
   drought: {
     immediate: [
       'The rains stopped above the land. The rivers shrank to mud.',
       'Three harvests failed in {settlement}. The old ways of water-prayer were revived.',
-      'The wells of {settlement} went dry in a single season. The elders said it was no accident.'
+      'The wells of {settlement} went dry in a single season. The elders said it was no accident.',
+      'The sky turned a cruel, cloudless blue. The crops withered under an unrelenting sun.'
     ],
     legend: [
       'Elders say the drought came because the people of {settlement} angered {PLAYER_NAME} by building too close to the sky.',
       'The Water Keepers emerged after the Great Dry — priests who guard the last springs and speak to the above.',
-      'They say {PLAYER_NAME} withheld the rain to teach {faction} the weight of every drop.'
+      'They say {PLAYER_NAME} withheld the rain to teach {faction} the weight of every drop.',
+      'The dusty bones of {count} animals are still cited as the price of {PLAYER_NAME}\'s silence.'
     ],
     religion: [
       '{Religion} teaches that abundance is borrowed. {PLAYER_NAME} can recall it at any moment.',
       'They pour the first cup of every river into the ground — a gift returned to the one who gave it.',
-      'In {settlement}, no one drinks before the sky is thanked. The Dry taught them that much.'
+      'In {settlement}, no one drinks before the sky is thanked. The Dry taught them that much.',
+      'Thirst is considered a holy state in {Religion}, a reminder of their dependence on the above.'
     ]
   },
   bless: {
     immediate: [
       'An unprecedented harvest filled every storehouse in {settlement}. No one went hungry.',
       'The fields of the land produced three times what they should. No explanation was found.',
-      'For one impossible year, nothing in {settlement} died before its time.'
+      'For one impossible year, nothing in {settlement} died before its time.',
+      'Fruit grew heavy on branches overnight. {settlement} celebrated a miracle.'
     ],
     legend: [
       'The Generous Hand touched our soil, say the elders. We do not know why we were chosen.',
       '{PLAYER_NAME} smiled on {settlement} that year. The people built a shrine at the edge of the fields.',
-      'They still measure good years against that one, and call it the season {PLAYER_NAME} loved them.'
+      'They still measure good years against that one, and call it the season {PLAYER_NAME} loved them.',
+      'They say the grain grew so tall it brushed the sky, a direct gift from {PLAYER_NAME}.'
     ],
     religion: [
       'The Abundance Faith holds that {PLAYER_NAME} rewards stillness and gratitude, not ambition.',
       'They leave offerings at the field\'s edge each harvest — not to ask for more, but to say thank you.',
-      '{Religion} teaches that {PLAYER_NAME} watches kindly, and that the proof was the year of plenty.'
+      '{Religion} teaches that {PLAYER_NAME} watches kindly, and that the proof was the year of plenty.',
+      'In {Religion}, feasting is an act of prayer, honoring the one who provided.'
     ]
   },
 
@@ -79,7 +88,8 @@ export const TEMPLATES = {
     // Stage 1 — discovery (same for all; the realization lands)
     discovery: [
       'The mathematicians of {settlement} have proven it: the world has a boundary, and beyond the boundary, something observes. The proof cannot be refuted. It can only be lived with.',
-      'A telescope at the edge of the world did not find more world. It found a watcher, looking back. The news is spreading faster than any law can stop it.'
+      'A telescope at the edge of the world did not find more world. It found a watcher, looking back. The news is spreading faster than any law can stop it.',
+      'The final equation was solved in {settlement}. It proved that the sky is a wall, and the stars are painted. They know they are in a box.'
     ],
     // Stage 2 + 3 — reaction, by archetype
     cruel: [
@@ -105,11 +115,13 @@ export const TEMPLATES = {
     // Stage 4 — the ending beat, by resolution
     transcend: [
       'And then, having understood everything, the people of {settlement} simply stopped. Not from war or famine — they had made their peace, and chose to go gently. The last of them looked up, once, and were still.',
-      'The final generation did not collapse. They finished. Every story told, every question answered as far as it could be. They closed their eyes toward the boundary, and let the world go quiet.'
+      'The final generation did not collapse. They finished. Every story told, every question answered as far as it could be. They closed their eyes toward the boundary, and let the world go quiet.',
+      'They reached the end of their purpose. {settlement} laid down its tools, held hands, and waited for the watcher to turn off the light.'
     ],
     collapse: [
       'The knowing was too much. The cities turned on themselves, the faiths went to war, and within a generation the great civilization that had reached the edge of its world was gone. The last words, scratched into a wall in {settlement}: WE SAW YOU.',
-      'They could not live with being watched. The towers came down, the lights went out one by one, and the world they had built unraveled faster than it had ever grown.'
+      'They could not live with being watched. The towers came down, the lights went out one by one, and the world they had built unraveled faster than it had ever grown.',
+      'In the end, it was the silence of {PLAYER_NAME} that drove {settlement} mad. They burned their own world to escape the terrarium.'
     ]
   }
 }

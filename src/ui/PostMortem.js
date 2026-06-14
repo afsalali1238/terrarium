@@ -17,6 +17,7 @@ export class PostMortem {
     this.el.classList.add('active');
     
     this.lastSliders = sliders; // Save for retry
+    this.lastPop = finalPop; // Save for global stats
 
     // Create Card
     const card = document.createElement('div');
@@ -124,6 +125,9 @@ export class PostMortem {
   handleAction(action) {
     this.runCount++;
     localStorage.setItem('terrarium_planet_runs', this.runCount.toString());
+    
+    const totalPop = parseInt(localStorage.getItem('terrarium_total_pop') || '0', 10) + (this.lastPop || 0);
+    localStorage.setItem('terrarium_total_pop', totalPop.toString());
     
     let nextSeed = undefined;
     if (action === 'replay') {

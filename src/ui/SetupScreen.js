@@ -49,6 +49,17 @@ export class SetupScreen {
     this.currentStep = 0
     this._setStep(0)
     this._updateAll()
+    
+    const runs = localStorage.getItem('terrarium_planet_runs') || '0';
+    const totalPop = localStorage.getItem('terrarium_total_pop') || '0';
+    const statsEl = this.el.querySelector('#global-stats');
+    if (statsEl) {
+      if (parseInt(runs, 10) > 0) {
+        statsEl.innerHTML = `CIVILIZATIONS OVERSEEN: ${runs} &nbsp;|&nbsp; SOULS CREATED: ${parseInt(totalPop, 10).toLocaleString()}`;
+      } else {
+        statsEl.innerHTML = '';
+      }
+    }
   }
 
   _build() {
@@ -304,6 +315,8 @@ export class SetupScreen {
         <button id="btn-back" class="nav-btn" style="display:none;">Back</button>
         <button id="btn-next" class="nav-btn">Next →</button>
       </div>
+
+      <div id="global-stats" style="margin-top: 24px; font-family: 'Space Mono', monospace; font-size: 10px; color: #505070; text-align: center;"></div>
     </div>
     `
 
