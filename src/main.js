@@ -12,6 +12,7 @@ import { ChoiceModal } from './ui/ChoiceModal.js';
 import { DevotionMeter } from './ui/DevotionMeter.js';
 import { CoachMarks } from './ui/CoachMarks.js';
 import { Codex } from './ui/Codex.js';
+import { ReckoningCinematic } from './ui/ReckoningCinematic.js';
 import { IdentityHUD } from './ui/IdentityHUD.js';
 import { FloatingText } from './ui/FloatingText.js';
 import { SimEngine } from './simulation/SimEngine.js';
@@ -64,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
   new DevotionMeter(EventBus, GameState);
   new CoachMarks(EventBus, GameState);
   new Codex(EventBus, GameState);
+  new ReckoningCinematic(EventBus);
   new IdentityHUD(document.getElementById('identity-hud'), EventBus);
   new FloatingText(document.getElementById('screen-game'), EventBus);
 
